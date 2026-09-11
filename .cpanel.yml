@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/ttecwymc/public_html/fncrb
+    - /bin/rsync -r --exclude='.git' * $DEPLOYPATH
