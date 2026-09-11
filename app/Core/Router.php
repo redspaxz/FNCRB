@@ -29,6 +29,9 @@ final class Router
             $path = substr($path, strlen($base));
         }
         $path = '/' . trim($path, '/');
+        if (substr($path, -10) === '/index.php') {
+            $path = substr($path, 0, -9); // treat /index.php as directory root
+        }
 
         foreach ($this->routes[$method] ?? [] as $regex => $handler) {
             if (preg_match($regex, $path, $m)) {
