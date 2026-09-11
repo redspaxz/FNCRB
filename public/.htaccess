@@ -1,0 +1,13 @@
+# FNCRB — allow only front controller
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# Deny access to sensitive files
+<FilesMatch "\.(sql|md|log|ini)$">
+    Require all denied
+</FilesMatch>
+Options -Indexes
