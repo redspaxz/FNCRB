@@ -1,6 +1,9 @@
 <?php
-// FNCRB configuration. Copy to config.local.php and adjust per environment.
-return [
+// FNCRB configuration.
+// Environment-specific overrides live in config/config.local.php (git-ignored),
+// so deployments never clobber server credentials. Copy the 'db' (and optionally
+// 'app') block there and adjust per environment.
+$config = [
     'app' => [
         'name'    => 'First National Credit Registry Bureau',
         'short'   => 'FNCRB',
@@ -26,3 +29,9 @@ return [
         'consent_ttl_days'   => 90,
     ],
 ];
+
+$local = __DIR__ . '/config.local.php';
+if (is_file($local)) {
+    $config = array_replace_recursive($config, require $local);
+}
+return $config;
