@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= $e($title ?? 'FNCRB') ?> — FNCRB</title>
 <meta name="csrf-token" content="<?= App\Core\Csrf::token() ?>">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="<?= App\Core\Rbac::baseUrl() ?>/assets/vendor/bootstrap.min.css" rel="stylesheet">
 <style>
   body { background:#f4f6f9; }
   .navbar-brand b { color:#0d6efd; }
@@ -67,7 +67,7 @@
   </main>
 </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= App\Core\Rbac::baseUrl() ?>/assets/vendor/bootstrap.bundle.min.js"></script>
 <?= $pageScripts ?? '' ?>
 </body>
 </html>

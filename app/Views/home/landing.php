@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FNCRB — First National Credit Registry Bureau</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="<?= App\Core\Rbac::baseUrl() ?>/assets/vendor/bootstrap.min.css" rel="stylesheet">
 <style>body{background:#1b2838;color:#e8eef5}.hero{max-width:820px;margin:8vh auto}.card{background:#22334a;border:none}</style>
 </head>
 <body>
