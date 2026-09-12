@@ -1,0 +1,203 @@
+/* =====================================================================
+   FNCRB "Metal" theme — classic Java applet / Swing look
+   Beveled panels, outset buttons, JTable grids, title bar + status bar.
+   ===================================================================== */
+
+:root {
+  --metal-face: #d4d0c8;
+  --metal-light: #f4f2ee;
+  --metal-shadow: #808080;
+  --metal-dark: #404040;
+  --title-blue1: #2b5d8c;
+  --title-blue2: #4f8bbf;
+}
+
+html, body {
+  background: #6e91b8 !important;
+  font-family: "Dialog", "Tahoma", "Segoe UI", Verdana, sans-serif;
+  font-size: 12px;
+  color: #000;
+}
+
+/* ---------- JFrame window ---------- */
+.applet-window {
+  max-width: 1280px;
+  margin: 16px auto;
+  background: var(--metal-face);
+  border: 2px solid;
+  border-color: var(--metal-light) var(--metal-dark) var(--metal-dark) var(--metal-light);
+  box-shadow: 4px 4px 10px rgba(0,0,0,.45);
+}
+
+/* Title bar (JFrame) */
+.applet-titlebar {
+  display: flex; align-items: center; gap: 8px;
+  background: linear-gradient(180deg, var(--title-blue2), var(--title-blue1));
+  color: #fff; font-weight: bold; font-size: 12px;
+  padding: 4px 8px;
+  border-bottom: 1px solid #1a3c5a;
+  user-select: none;
+}
+.applet-titlebar .applet-icon {
+  width: 14px; height: 14px; display: inline-block;
+  background: #ffd440; border: 1px solid #7a5c00;
+}
+.applet-titlebar .applet-btns { margin-left: auto; display: flex; gap: 3px; }
+.applet-titlebar .applet-btns span {
+  width: 16px; height: 14px; background: var(--metal-face);
+  border: 1px solid; border-color: #fff #444 #444 #fff;
+  color: #000; font-size: 9px; line-height: 12px; text-align: center;
+}
+
+/* Menu bar (JMenuBar) */
+.applet-menubar {
+  display: flex; flex-wrap: wrap; gap: 0;
+  background: var(--metal-face);
+  border-bottom: 1px solid var(--metal-shadow);
+  padding: 2px 4px;
+}
+.applet-menubar a {
+  color: #000; text-decoration: none; font-size: 12px;
+  padding: 3px 10px; border: 1px solid transparent;
+}
+.applet-menubar a:hover { background: var(--metal-light); border-color: #fff #666 #666 #fff; }
+.applet-menubar a.active { background: #b6cbe0; border-color: #666 #fff #fff #666; font-weight: bold; }
+
+/* Toolbar strip */
+.applet-toolbar {
+  display: flex; gap: 6px; align-items: center;
+  background: linear-gradient(180deg, #e6e3dd, #cfcbc3);
+  border-bottom: 1px solid var(--metal-shadow);
+  padding: 4px 8px; font-size: 11px; color: #333;
+}
+
+/* ---------- Content / JSplitPane ---------- */
+.applet-body { display: flex; min-height: 520px; }
+.applet-side {
+  width: 210px; flex: none;
+  background: var(--metal-face);
+  border-right: 2px solid;
+  border-color: var(--metal-dark) var(--metal-light) var(--metal-light) var(--metal-dark);
+  padding: 8px 6px;
+}
+.applet-side .side-title {
+  font-weight: bold; font-size: 11px; color: #445; text-transform: uppercase;
+  border-bottom: 1px dotted var(--metal-shadow); margin-bottom: 6px; padding-bottom: 2px;
+}
+.applet-side a {
+  display: block; color: #000; text-decoration: none; font-size: 12px;
+  padding: 4px 8px; margin: 1px 0;
+  border: 1px solid transparent;
+}
+.applet-side a:hover { background: var(--metal-light); border-color: #fff #666 #666 #fff; }
+.applet-side a.active {
+  background: #b6cbe0; font-weight: bold;
+  border-color: #666 #fff #fff #666;
+}
+
+.applet-main { flex: 1; padding: 12px; background: var(--metal-face); overflow: auto; }
+
+/* ---------- Status bar (JLabel inset) ---------- */
+.applet-statusbar {
+  display: flex; gap: 4px;
+  background: var(--metal-face);
+  border-top: 1px solid var(--metal-light);
+  padding: 3px 6px; font-size: 11px; color: #333;
+}
+.applet-statusbar .cell {
+  border: 1px solid; border-color: var(--metal-shadow) #fff #fff var(--metal-shadow);
+  padding: 2px 8px; background: #e8e6e1;
+}
+.applet-statusbar .cell.grow { flex: 1; }
+
+/* ---------- JPanels: raised bevel ---------- */
+.card, .panel3d {
+  background: var(--metal-face) !important;
+  border: 2px solid !important;
+  border-color: var(--metal-light) var(--metal-dark) var(--metal-dark) var(--metal-light) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #000 !important;
+}
+.card p, .card small { color: #333 !important; }
+.card.text-bg-primary, .card.text-bg-success, .card.text-bg-dark,
+.card.text-bg-danger, .card.text-bg-warning { background: #dfe6ee !important; color: #000 !important; }
+
+/* TitledBorder: use legend-style headers on cards */
+.card::before { content: none; }
+.card-header, .titled {
+  font-weight: bold; font-size: 11px; color: #223;
+  border-bottom: 1px solid var(--metal-shadow);
+  background: linear-gradient(180deg, #e6e3dd, #cfcbc3);
+  margin: -8px -8px 8px; padding: 4px 8px;
+}
+
+/* ---------- JButton: outset bevel ---------- */
+.btn {
+  border-radius: 0 !important;
+  background: linear-gradient(180deg, #ecebe7, #d8d5cf) !important;
+  border: 2px solid !important;
+  border-color: #fff #5a5a5a #5a5a5a #fff !important;
+  color: #000 !important; font-size: 12px !important;
+  box-shadow: 1px 1px 0 rgba(0,0,0,.25);
+}
+.btn:hover { background: linear-gradient(180deg, #f4f9ff, #dde8f4) !important; }
+.btn:active, .btn:focus-visible {
+  border-color: #5a5a5a #fff #fff #5a5a5a !important;
+  background: #c9d6e4 !important; box-shadow: none;
+}
+.btn-primary { color: #000 !important; }
+.btn-outline-light { color: #000 !important; }
+
+/* ---------- JTable ---------- */
+.table {
+  background: #fff !important;
+  border: 2px solid !important;
+  border-color: var(--metal-dark) #fff #fff var(--metal-dark) !important;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.table th {
+  background: linear-gradient(180deg, #e6e3dd, #cfcbc3) !important;
+  color: #000 !important;
+  border: 1px solid var(--metal-shadow) !important;
+  font-weight: bold; white-space: nowrap;
+}
+.table td { border: 1px solid #b8b8b8 !important; color: #000; padding: 3px 6px; }
+.table-striped tbody tr:nth-child(odd) td { background: #f2f6fa; }
+.table-striped tbody tr:nth-child(even) td { background: #fff; }
+.table-striped tbody tr:hover td { background: #cfe0f0 !important; }
+
+/* ---------- JTextField / JComboBox / JSpinner ---------- */
+.form-control, .form-select {
+  border-radius: 0 !important;
+  border: 2px solid !important;
+  border-color: var(--metal-dark) #fff #fff var(--metal-dark) !important;
+  background: #fff !important; font-size: 12px !important;
+}
+.form-control:focus, .form-select:focus {
+  box-shadow: none !important;
+  outline: 1px solid #4f8bbf;
+}
+label { font-size: 11px; font-weight: bold; color: #223; }
+
+/* ---------- Alerts as inset message panels ---------- */
+.alert {
+  border-radius: 0 !important;
+  border: 2px solid !important;
+  border-color: var(--metal-shadow) #fff #fff var(--metal-shadow) !important;
+  background: #eef2f6 !important; color: #000 !important;
+  font-size: 12px;
+}
+.alert-danger { background: #f6e4e4 !important; }
+.alert-success { background: #e4f0e4 !important; }
+.alert-warning { background: #f6f0dd !important; }
+.alert-info { background: #e2ecf4 !important; }
+
+/* ---------- misc ---------- */
+h3, h4, h5 { font-weight: bold; color: #123; }
+h3 { border-bottom: 2px groove var(--metal-light); padding-bottom: 3px; }
+code { background: #eef; border: 1px solid var(--metal-shadow); border-radius: 0; font-size: 11px; }
+.badge { border-radius: 0 !important; border: 1px solid var(--metal-shadow); font-weight: normal; }
+footer { display: none; }
+a { color: #1a4a7a; }
