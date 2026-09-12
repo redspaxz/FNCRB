@@ -12,14 +12,14 @@ $langSwitch .= (str_contains($langSwitch, '?') ? '&' : '?') . 'lang=' . $otherLa
 <title><?= $e($title ?? 'FNCRB') ?> — FNCRB</title>
 <meta name="csrf-token" content="<?= App\Core\Csrf::token() ?>">
 <meta name="base-url" content="<?= $base ?>">
-<link href="<?= $base ?>/assets/vendor/bootstrap.min.css?v=3" rel="stylesheet">
-<link href="<?= $base ?>/assets/css/lumo.css?v=3" rel="stylesheet">
+<link href="<?= $base ?>/assets/vendor/bootstrap.min.css?v=4" rel="stylesheet">
+<link href="<?= $base ?>/assets/css/lumo.css?v=4" rel="stylesheet">
 </head>
 <body>
 <div class="vaadin-app">
 
   <header class="vaadin-appbar">
-    <a class="brand" href="<?= $base ?>/dashboard"><span class="logo">FN</span> FNCRB</a>
+    <a class="brand" href="<?= $base ?>/dashboard"><span class="logo">FNCRB</span></a>
     <nav class="app-tabs">
       <?php if ($u): ?>
         <a href="<?= $base ?>/dashboard"><?= $t('nav_dashboard') ?></a>

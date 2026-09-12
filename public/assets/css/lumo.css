@@ -40,9 +40,9 @@ html, body {
   font-weight: 700; font-size: 15px; color: var(--lumo-text); text-decoration: none;
 }
 .vaadin-appbar .brand .logo {
-  width: 28px; height: 28px; border-radius: 8px;
+  padding: 0 9px; height: 28px; border-radius: 8px; width: auto;
   background: linear-gradient(135deg, var(--lumo-primary), #37a3f5);
-  color: #fff; font-size: 13px; font-weight: 800;
+  color: #fff; font-size: 12px; font-weight: 800; letter-spacing: .04em;
   display: inline-flex; align-items: center; justify-content: center;
 }
 .vaadin-appbar .app-tabs { display: flex; gap: 4px; margin-left: 16px; height: 100%; }

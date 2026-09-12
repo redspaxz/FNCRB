@@ -6,8 +6,8 @@ $langSwitch = '?lang=' . (App\Core\Lang::lang() === 'fr' ? 'en' : 'fr');
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= $t('sign_in') ?> — FNCRB</title>
-<link href="<?= $base ?>/assets/vendor/bootstrap.min.css?v=3" rel="stylesheet">
-<link href="<?= $base ?>/assets/css/lumo.css?v=3" rel="stylesheet">
+<link href="<?= $base ?>/assets/vendor/bootstrap.min.css?v=4" rel="stylesheet">
+<link href="<?= $base ?>/assets/css/lumo.css?v=4" rel="stylesheet">
 </head>
 <body class="login-page">
 <div class="login-card">
