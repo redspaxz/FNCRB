@@ -10,9 +10,8 @@
 <body class="login-page">
 <div class="login-card">
   <div class="login-head">
-    <span class="logo">FN</span>
-    <div class="login-title">FNCRB</div>
-    <div class="login-sub">First National Credit Registry Bureau</div>
+    <div class="login-title">First National Credit Registry Bureau</div>
+    <div class="login-sub">Central Credit Registry — Cameroon (CEMAC)</div>
   </div>
   <div class="login-body">
     <?php if (!empty($error)): ?><div class="alert alert-danger"><?= $e($error) ?></div><?php endif; ?>
