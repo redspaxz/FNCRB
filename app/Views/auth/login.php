@@ -36,5 +36,6 @@
     <p class="text-muted small mt-2 mb-0 login-note">Access restricted to authorized registry participants. All access attempts are logged and audited.</p>
   </div>
 </div>
+<script src="<?= $base ?>/assets/js/app.js?v=3"></script>
 </body>
 </html>
