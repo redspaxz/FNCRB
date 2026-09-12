@@ -191,7 +191,7 @@ html, body {
   border-color: var(--lumo-primary) !important;
   box-shadow: 0 0 0 3px rgba(26,102,214,.14) !important;
 }
-label { font-size: 12.5px; font-weight: 600; color: var(--lumo-secondary); }
+label { font-size: 12.5px; font-weight: 600; color: var(--lumo-secondary); margin-bottom: .25rem; }
 
 /* ---------- Alerts ---------- */
 .alert {
