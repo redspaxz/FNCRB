@@ -13,7 +13,7 @@ $langSwitch .= (str_contains($langSwitch, '?') ? '&' : '?') . 'lang=' . $otherLa
 <meta name="csrf-token" content="<?= App\Core\Csrf::token() ?>">
 <meta name="base-url" content="<?= $base ?>">
 <link href="<?= $base ?>/assets/vendor/bootstrap.min.css?v=4" rel="stylesheet">
-<link href="<?= $base ?>/assets/css/lumo.css?v=4" rel="stylesheet">
+<link href="<?= $base ?>/assets/css/lumo.css?v=5" rel="stylesheet">
 </head>
 <body>
 <div class="vaadin-app">
