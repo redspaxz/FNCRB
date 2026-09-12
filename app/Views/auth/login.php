@@ -4,8 +4,8 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sign in — FNCRB</title>
-<link href="<?= $base ?>/assets/vendor/bootstrap.min.css" rel="stylesheet">
-<link href="<?= $base ?>/assets/css/lumo.css" rel="stylesheet">
+<link href="<?= $base ?>/assets/vendor/bootstrap.min.css?v=3" rel="stylesheet">
+<link href="<?= $base ?>/assets/css/lumo.css?v=3" rel="stylesheet">
 </head>
 <body class="login-page">
 <div class="login-card">

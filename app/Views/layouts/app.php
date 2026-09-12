@@ -9,8 +9,8 @@ $initials = $u ? mb_strtoupper(mb_substr($u['full_name'],0,1) . (mb_strpos($u['f
 <title><?= $e($title ?? 'FNCRB') ?> — FNCRB</title>
 <meta name="csrf-token" content="<?= App\Core\Csrf::token() ?>">
 <meta name="base-url" content="<?= $base ?>">
-<link href="<?= $base ?>/assets/vendor/bootstrap.min.css" rel="stylesheet">
-<link href="<?= $base ?>/assets/css/lumo.css" rel="stylesheet">
+<link href="<?= $base ?>/assets/vendor/bootstrap.min.css?v=3" rel="stylesheet">
+<link href="<?= $base ?>/assets/css/lumo.css?v=3" rel="stylesheet">
 </head>
 <body>
 <div class="vaadin-app">
@@ -63,8 +63,8 @@ $initials = $u ? mb_strtoupper(mb_substr($u['full_name'],0,1) . (mb_strpos($u['f
   </div>
 
 </div>
-<script src="<?= $base ?>/assets/vendor/bootstrap.bundle.min.js"></script>
-<script src="<?= $base ?>/assets/js/app.js"></script>
+<script src="<?= $base ?>/assets/vendor/bootstrap.bundle.min.js?v=3"></script>
+<script src="<?= $base ?>/assets/js/app.js?v=3"></script>
 <?= $pageScripts ?? '' ?>
 </body>
 </html>
