@@ -6,23 +6,15 @@
 <title>Sign in — FNCRB</title>
 <link href="<?= $base ?>/assets/vendor/bootstrap.min.css" rel="stylesheet">
 <link href="<?= $base ?>/assets/css/lumo.css" rel="stylesheet">
-<style>
-  body { display:flex; align-items:center; justify-content:center; min-height:100vh; }
-  .login-card { width: 400px; background:#fff; border:1px solid var(--lumo-border); border-radius:14px;
-                box-shadow: var(--lumo-shadow-md); overflow:hidden; }
-  .login-head { background: linear-gradient(135deg,#1a66d6,#3f8ef7); color:#fff; padding:16px 22px; }
-  .login-head .logo { width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.2);
-                      display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:13px; }
-</style>
 </head>
-<body>
+<body class="login-page">
 <div class="login-card">
   <div class="login-head">
     <span class="logo">FN</span>
-    <div style="margin-top:9px;font-weight:700;font-size:15px;">FNCRB</div>
-    <div style="font-size:12px;opacity:.85;">First National Credit Registry Bureau</div>
+    <div class="login-title">FNCRB</div>
+    <div class="login-sub">First National Credit Registry Bureau</div>
   </div>
-  <div style="padding:16px 22px 18px;">
+  <div class="login-body">
     <?php if (!empty($error)): ?><div class="alert alert-danger"><?= $e($error) ?></div><?php endif; ?>
     <form method="post" action="<?= $base ?>/login">
       <?= App\Core\Csrf::field() ?>
@@ -36,7 +28,7 @@
       </div>
       <button class="btn btn-primary w-100">Sign in</button>
     </form>
-    <p class="text-muted small mt-2 mb-0" style="font-size:11px;">Access restricted to authorized registry participants. All access attempts are logged and audited.</p>
+    <p class="text-muted small mt-2 mb-0 login-note">Access restricted to authorized registry participants. All access attempts are logged and audited.</p>
   </div>
 </div>
 </body>

@@ -49,28 +49,5 @@
   </tbody>
 </table>
 
-<?php
-$baseUrl = App\Core\Rbac::baseUrl();
-$pageScripts = <<<JS
-<script>
-document.getElementById('btn-reclassify').addEventListener('click', async function () {
-  const btn = this; btn.disabled = true;
-  const csrf = document.querySelector('meta[name="csrf-token"]').content;
-  try {
-    const res = await fetch('$baseUrl/compliance/reclassify', {
-      method: 'POST',
-      headers: { 'X-CSRF-Token': csrf }
-    });
-    const data = await res.json();
-    if (res.ok) {
-      alert('Reclassified ' + data.loans_reclassified + ' loan(s). COBAC classes and provisions updated.');
-      location.reload();
-    } else {
-      alert('Error: ' + (data.error || res.status));
-    }
-  } catch (e) { alert('Request failed: ' + e); }
-  btn.disabled = false;
-});
-</script>
-JS;
+<?php // reclassify button behavior lives in assets/js/app.js (CSP-safe, no inline script)
 ?>

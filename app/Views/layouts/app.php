@@ -8,6 +8,7 @@ $initials = $u ? mb_strtoupper(mb_substr($u['full_name'],0,1) . (mb_strpos($u['f
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= $e($title ?? 'FNCRB') ?> — FNCRB</title>
 <meta name="csrf-token" content="<?= App\Core\Csrf::token() ?>">
+<meta name="base-url" content="<?= $base ?>">
 <link href="<?= $base ?>/assets/vendor/bootstrap.min.css" rel="stylesheet">
 <link href="<?= $base ?>/assets/css/lumo.css" rel="stylesheet">
 </head>
@@ -63,6 +64,7 @@ $initials = $u ? mb_strtoupper(mb_substr($u['full_name'],0,1) . (mb_strpos($u['f
 
 </div>
 <script src="<?= $base ?>/assets/vendor/bootstrap.bundle.min.js"></script>
+<script src="<?= $base ?>/assets/js/app.js"></script>
 <?= $pageScripts ?? '' ?>
 </body>
 </html>
