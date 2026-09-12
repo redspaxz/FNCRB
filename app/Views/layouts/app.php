@@ -1,4 +1,6 @@
-<?php /** @var string $content @var array $u */ $u = App\Core\Auth::user(); $e = $data['e'] ?? fn($s) => htmlspecialchars((string)$s); $base = App\Core\Rbac::baseUrl(); ?>
+<?php /** @var string $content @var array $u */ $u = App\Core\Auth::user(); $e = $data['e'] ?? fn($s) => htmlspecialchars((string)$s); $base = App\Core\Rbac::baseUrl();
+$initials = $u ? mb_strtoupper(mb_substr($u['full_name'],0,1) . (mb_strpos($u['full_name'],' ') ? mb_substr($u['full_name'], mb_strpos($u['full_name'],' ')+1, 1) : '')) : '';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,75 +9,60 @@
 <title><?= $e($title ?? 'FNCRB') ?> — FNCRB</title>
 <meta name="csrf-token" content="<?= App\Core\Csrf::token() ?>">
 <link href="<?= $base ?>/assets/vendor/bootstrap.min.css" rel="stylesheet">
-<link href="<?= $base ?>/assets/css/applet.css" rel="stylesheet">
+<link href="<?= $base ?>/assets/css/lumo.css" rel="stylesheet">
 </head>
 <body>
-<div class="applet-window">
-  <div class="applet-titlebar">
-    <span class="applet-icon"></span>
-    FNCRB — First National Credit Registry Bureau
-    <span class="applet-btns"><span>_</span><span>&#9723;</span><span>&times;</span></span>
-  </div>
+<div class="vaadin-app">
 
-  <div class="applet-menubar">
-    <?php if ($u): ?>
-      <a href="<?= $base ?>/dashboard">Dashboard</a>
-      <?php if (App\Core\Rbac::can('inquiry.perform')): ?><a href="<?= $base ?>/inquiry">Inquiry</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('borrower.manage')): ?><a href="<?= $base ?>/borrowers">Borrowers</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('loan.view.own') || App\Core\Rbac::can('loan.view.all')): ?><a href="<?= $base ?>/loans">Portfolio</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('collateral.view.own') || App\Core\Rbac::can('loan.view.all')): ?><a href="<?= $base ?>/collateral">Sûretés</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('incident.view.own') || App\Core\Rbac::can('incident.view.all')): ?><a href="<?= $base ?>/incidents">Incidents</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('compliance.reports')): ?><a href="<?= $base ?>/compliance">Compliance</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('audit.view')): ?><a href="<?= $base ?>/audit">Audit</a><?php endif; ?>
-      <a href="<?= $base ?>/logout" style="margin-left:auto">Exit</a>
-    <?php else: ?>
-      <a href="<?= $base ?>/login">Sign in</a>
-    <?php endif; ?>
-  </div>
-
-  <?php if ($u): ?>
-  <div class="applet-toolbar">
-    <span>User: <b><?= $e($u['full_name']) ?></b></span> |
-    <span>Role: <b><?= $e($u['role_code']) ?></b></span> |
-    <span>Institution: <b><?= $e($u['institution_code'] ?? 'COBAC/BEAC (national)') ?></b></span> |
-    <span>Session: <b id="applet-clock"><?= date('H:i:s') ?></b></span>
-  </div>
-  <?php endif; ?>
-
-  <div class="applet-body">
-    <?php if ($u): ?>
-    <nav class="applet-side">
-      <div class="side-title">Registry Modules</div>
-      <a href="<?= $base ?>/dashboard">:: Dashboard</a>
-      <?php if (App\Core\Rbac::can('inquiry.perform')): ?><a href="<?= $base ?>/inquiry">:: Credit Inquiry</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('borrower.manage')): ?><a href="<?= $base ?>/borrowers">:: Borrowers</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('loan.view.own') || App\Core\Rbac::can('loan.view.all')): ?><a href="<?= $base ?>/loans">:: Loan Portfolio</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('collateral.view.own') || App\Core\Rbac::can('loan.view.all')): ?><a href="<?= $base ?>/collateral">:: Collateral</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('incident.view.own') || App\Core\Rbac::can('incident.view.all')): ?><a href="<?= $base ?>/incidents">:: Incidents (CIP)</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('compliance.reports')): ?><a href="<?= $base ?>/compliance">:: Compliance</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('audit.view')): ?><a href="<?= $base ?>/audit">:: Audit Trail</a><?php endif; ?>
-      <div class="side-title" style="margin-top:14px">Regulatory</div>
-      <div style="font-size:10px;color:#444;padding:2px 8px;">COBAC · BEAC · CNEF · OHADA Uniform Act</div>
+  <header class="vaadin-appbar">
+    <a class="brand" href="<?= $base ?>/dashboard"><span class="logo">FN</span> FNCRB</a>
+    <nav class="app-tabs">
+      <?php if ($u): ?>
+        <a href="<?= $base ?>/dashboard">Dashboard</a>
+        <?php if (App\Core\Rbac::can('inquiry.perform')): ?><a href="<?= $base ?>/inquiry">Inquiry</a><?php endif; ?>
+        <?php if (App\Core\Rbac::can('borrower.manage')): ?><a href="<?= $base ?>/borrowers">Borrowers</a><?php endif; ?>
+        <?php if (App\Core\Rbac::can('loan.view.own') || App\Core\Rbac::can('loan.view.all')): ?><a href="<?= $base ?>/loans">Portfolio</a><?php endif; ?>
+        <?php if (App\Core\Rbac::can('compliance.reports')): ?><a href="<?= $base ?>/compliance">Compliance</a><?php endif; ?>
+      <?php else: ?>
+        <a href="<?= $base ?>/login">Sign in</a>
+      <?php endif; ?>
     </nav>
+    <?php if ($u): ?>
+    <div class="userchip">
+      <div class="meta text-end d-none d-md-block">
+        <div class="who"><?= $e($u['full_name']) ?></div>
+        <div class="sub"><?= $e($u['role_code']) ?> · <?= $e($u['institution_code'] ?? 'COBAC/BEAC') ?></div>
+      </div>
+      <span class="avatar"><?= $e($initials) ?></span>
+      <a class="btn btn-sm" href="<?= $base ?>/logout">Sign out</a>
+    </div>
     <?php endif; ?>
-    <main class="applet-main">
+  </header>
+
+  <div class="vaadin-shell">
+    <?php if ($u): ?>
+    <aside class="vaadin-nav">
+      <div class="nav-section">Registry</div>
+      <a href="<?= $base ?>/dashboard"><span class="ico">▦</span> Dashboard</a>
+      <?php if (App\Core\Rbac::can('inquiry.perform')): ?><a href="<?= $base ?>/inquiry"><span class="ico">⌕</span> Credit Inquiry</a><?php endif; ?>
+      <?php if (App\Core\Rbac::can('borrower.manage')): ?><a href="<?= $base ?>/borrowers"><span class="ico">👤</span> Borrowers</a><?php endif; ?>
+      <?php if (App\Core\Rbac::can('loan.view.own') || App\Core\Rbac::can('loan.view.all')): ?><a href="<?= $base ?>/loans"><span class="ico">▤</span> Loan Portfolio</a><?php endif; ?>
+      <?php if (App\Core\Rbac::can('collateral.view.own') || App\Core\Rbac::can('loan.view.all')): ?><a href="<?= $base ?>/collateral"><span class="ico">⛨</span> Collateral</a><?php endif; ?>
+      <?php if (App\Core\Rbac::can('incident.view.own') || App\Core\Rbac::can('incident.view.all')): ?><a href="<?= $base ?>/incidents"><span class="ico">⚠</span> Incidents</a><?php endif; ?>
+      <?php if (App\Core\Rbac::can('compliance.reports')): ?><a href="<?= $base ?>/compliance"><span class="ico">▣</span> Compliance</a><?php endif; ?>
+      <?php if (App\Core\Rbac::can('audit.view')): ?><a href="<?= $base ?>/audit"><span class="ico">☰</span> Audit Trail</a><?php endif; ?>
+      <div class="nav-section">Regulatory</div>
+      <div class="nav-note">COBAC · BEAC · CNEF · OHADA Uniform Act.<br>All inquiries require recorded borrower consent.</div>
+    </aside>
+    <?php endif; ?>
+
+    <main class="vaadin-content">
       <?= $content ?>
     </main>
   </div>
 
-  <div class="applet-statusbar">
-    <span class="cell grow">Ready — FNCRB Central Credit Registry</span>
-    <span class="cell">Consent required for all inquiries</span>
-    <span class="cell"><?= $u ? 'AUTHENTICATED' : 'GUEST' ?></span>
-  </div>
 </div>
 <script src="<?= $base ?>/assets/vendor/bootstrap.bundle.min.js"></script>
-<script>
-setInterval(function () {
-  var c = document.getElementById('applet-clock');
-  if (c) c.textContent = new Date().toTimeString().slice(0, 8);
-}, 1000);
-</script>
 <?= $pageScripts ?? '' ?>
 </body>
 </html>

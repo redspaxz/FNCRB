@@ -1,0 +1,221 @@
+/* =====================================================================
+   FNCRB "Lumo" theme — modern Vaadin Flow look
+   Flat surfaces, soft shadows, rounded corners, blue primary, Inter font.
+   ===================================================================== */
+
+:root {
+  --lumo-primary: #1a66d6;
+  --lumo-primary-hover: #1558b8;
+  --lumo-bg: #f2f4f7;
+  --lumo-surface: #ffffff;
+  --lumo-border: #e0e3e8;
+  --lumo-text: #1a1c20;
+  --lumo-secondary: #5c6270;
+  --lumo-radius: 10px;
+  --lumo-shadow-sm: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+  --lumo-shadow-md: 0 2px 6px rgba(16,24,40,.07), 0 4px 12px rgba(16,24,40,.06);
+}
+
+html, body {
+  background: var(--lumo-bg) !important;
+  font-family: Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  color: var(--lumo-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- App shell ---------- */
+.vaadin-app { min-height: 100vh; display: flex; flex-direction: column; }
+
+.vaadin-appbar {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; gap: 14px;
+  background: var(--lumo-surface);
+  border-bottom: 1px solid var(--lumo-border);
+  padding: 0 20px; height: 56px;
+  box-shadow: var(--lumo-shadow-sm);
+}
+.vaadin-appbar .brand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 15px; color: var(--lumo-text); text-decoration: none;
+}
+.vaadin-appbar .brand .logo {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--lumo-primary), #37a3f5);
+  color: #fff; font-size: 13px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.vaadin-appbar .app-tabs { display: flex; gap: 4px; margin-left: 16px; height: 100%; }
+.vaadin-appbar .app-tabs a {
+  display: inline-flex; align-items: center;
+  color: var(--lumo-secondary); text-decoration: none; font-size: 13.5px; font-weight: 500;
+  padding: 0 12px; border-bottom: 2.5px solid transparent; transition: all .15s;
+}
+.vaadin-appbar .app-tabs a:hover { color: var(--lumo-text); background: #f6f8fb; }
+.vaadin-appbar .app-tabs a.active { color: var(--lumo-primary); border-bottom-color: var(--lumo-primary); font-weight: 600; }
+.vaadin-appbar .userchip {
+  margin-left: auto; display: flex; align-items: center; gap: 10px;
+}
+.vaadin-appbar .userchip .avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, #5e6ad2, #8b93e8);
+  color: #fff; font-weight: 600; font-size: 12.5px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.vaadin-appbar .userchip .meta { font-size: 12.5px; line-height: 1.25; }
+.vaadin-appbar .userchip .meta .who { font-weight: 600; }
+.vaadin-appbar .userchip .meta .sub { color: var(--lumo-secondary); font-size: 11.5px; }
+
+.vaadin-shell { display: flex; flex: 1; align-items: flex-start; }
+
+/* ---------- Left nav ---------- */
+.vaadin-nav {
+  width: 232px; flex: none; margin: 16px 0 16px 16px;
+  background: var(--lumo-surface);
+  border: 1px solid var(--lumo-border);
+  border-radius: var(--lumo-radius);
+  box-shadow: var(--lumo-shadow-sm);
+  padding: 8px;
+  position: sticky; top: 72px;
+}
+.vaadin-nav .nav-section {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  color: #8a90a0; padding: 10px 10px 6px;
+}
+.vaadin-nav a {
+  display: flex; align-items: center; gap: 10px;
+  color: var(--lumo-text); text-decoration: none; font-size: 13.5px; font-weight: 500;
+  padding: 8px 10px; margin: 1px 0; border-radius: 7px; transition: background .12s;
+}
+.vaadin-nav a .ico { width: 20px; text-align: center; opacity: .75; }
+.vaadin-nav a:hover { background: #f2f5f9; }
+.vaadin-nav a.active { background: #e8f1fd; color: var(--lumo-primary); font-weight: 600; }
+.vaadin-nav .nav-note { font-size: 11.5px; color: var(--lumo-secondary); padding: 8px 10px; }
+
+.vaadin-content { flex: 1; padding: 16px 20px 32px; min-width: 0; }
+
+/* ---------- Page header ---------- */
+.vaadin-content h3:first-child {
+  font-size: 19px; font-weight: 700; margin-bottom: 4px; border: none; padding: 0;
+}
+.vaadin-content h3 + p, .page-sub { color: var(--lumo-secondary); font-size: 13px; }
+
+/* ---------- Cards (Vaadin VerticalLayout surfaces) ---------- */
+.card {
+  background: var(--lumo-surface) !important;
+  border: 1px solid var(--lumo-border) !important;
+  border-radius: var(--lumo-radius) !important;
+  box-shadow: var(--lumo-shadow-sm) !important;
+  color: var(--lumo-text) !important;
+  padding: 14px 16px !important;
+}
+.card small { color: var(--lumo-secondary) !important; }
+.card h2, .card h5 { font-weight: 700; }
+.titled {
+  font-weight: 600; font-size: 13px; color: var(--lumo-text);
+  margin: -6px -6px 10px; padding: 8px 10px;
+  background: #f7f9fc; border-radius: 7px 7px 0 0;
+}
+
+/* stat emphasis */
+.card.text-bg-primary   { background: linear-gradient(135deg,#1a66d6,#3f8ef7)!important; color:#fff!important; border:none!important; }
+.card.text-bg-primary small { color:#dbe9ff!important; }
+.card.text-bg-success   { background: linear-gradient(135deg,#1c7d4d,#34b372)!important; color:#fff!important; border:none!important; }
+.card.text-bg-success small { color:#d5f4e3!important; }
+.card.text-bg-danger    { background: linear-gradient(135deg,#c0392b,#e2685c)!important; color:#fff!important; border:none!important; }
+.card.text-bg-danger small { color:#fbe0dc!important; }
+.card.text-bg-warning   { background: linear-gradient(135deg,#b07d15,#e0ae3a)!important; color:#fff!important; border:none!important; }
+.card.text-bg-warning small { color:#fdf3d8!important; }
+.card.text-bg-dark      { background: linear-gradient(135deg,#252a36,#3c4354)!important; color:#fff!important; border:none!important; }
+.card.text-bg-dark small { color:#ccd2e0!important; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  border-radius: 8px !important;
+  font-size: 13.5px !important; font-weight: 600 !important;
+  padding: 7px 16px !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  transition: background .12s, box-shadow .12s;
+}
+.btn-primary {
+  background: var(--lumo-primary) !important; color: #fff !important;
+}
+.btn-primary:hover { background: var(--lumo-primary-hover) !important; box-shadow: var(--lumo-shadow-sm) !important; }
+.btn:not(.btn-primary):not(.btn-outline-light) {
+  background: #fff !important; color: var(--lumo-text) !important;
+  border-color: var(--lumo-border) !important;
+}
+.btn:not(.btn-primary):hover { background: #f4f6fa !important; }
+.btn-outline-light { background: transparent !important; border-color: var(--lumo-border)!important; color: var(--lumo-text)!important; }
+
+/* ---------- Tables (Vaadin Grid) ---------- */
+.table {
+  background: var(--lumo-surface) !important;
+  border: 1px solid var(--lumo-border) !important;
+  border-radius: var(--lumo-radius) !important;
+  overflow: hidden;
+  box-shadow: var(--lumo-shadow-sm);
+  font-size: 13px;
+  border-collapse: separate; border-spacing: 0;
+}
+.table th {
+  background: #f7f9fc !important;
+  color: var(--lumo-secondary) !important;
+  font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  border-bottom: 1px solid var(--lumo-border) !important;
+  border-top: none !important; border-left: none !important; border-right: none !important;
+  padding: 9px 12px !important; white-space: nowrap;
+}
+.table td {
+  border: none !important;
+  border-bottom: 1px solid #eef0f4 !important;
+  padding: 9px 12px !important; color: var(--lumo-text);
+}
+.table tr:last-child td { border-bottom: none !important; }
+.table-striped tbody tr:nth-child(odd) td { background: #fff; }
+.table-striped tbody tr:nth-child(even) td { background: #fafbfd; }
+.table-striped tbody tr:hover td { background: #eef4fd !important; }
+
+/* ---------- Forms (Vaadin TextFields / Selects) ---------- */
+.form-control, .form-select {
+  border-radius: 7px !important;
+  border: 1px solid var(--lumo-border) !important;
+  background: #fff !important;
+  font-size: 13.5px !important;
+  padding: 7px 11px !important;
+  color: var(--lumo-text) !important;
+  box-shadow: none !important;
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--lumo-primary) !important;
+  box-shadow: 0 0 0 3px rgba(26,102,214,.14) !important;
+}
+label { font-size: 12.5px; font-weight: 600; color: var(--lumo-secondary); }
+
+/* ---------- Alerts ---------- */
+.alert {
+  border-radius: 8px !important;
+  border: 1px solid var(--lumo-border) !important;
+  background: var(--lumo-surface) !important;
+  color: var(--lumo-text) !important;
+  font-size: 13px !important;
+  padding: 10px 14px !important;
+  box-shadow: var(--lumo-shadow-sm);
+}
+.alert-danger  { border-left: 4px solid #e04f44 !important; }
+.alert-success { border-left: 4px solid #2eaa6b !important; }
+.alert-warning { border-left: 4px solid #e0a63a !important; }
+.alert-info    { border-left: 4px solid #3f8ef7 !important; }
+
+/* ---------- misc ---------- */
+h3, h4, h5 { font-weight: 700; color: var(--lumo-text); }
+h3 { border: none; padding: 0; }
+code {
+  background: #f1f3f7; border: 1px solid var(--lumo-border);
+  border-radius: 5px; font-size: 12px; padding: 1px 5px;
+}
+.badge { border-radius: 999px !important; border: none !important; font-weight: 600; font-size: 11px; }
+footer { display: none; }
+a { color: var(--lumo-primary); }
+hr { border-color: var(--lumo-border); opacity: 1; }
