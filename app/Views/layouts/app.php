@@ -19,7 +19,7 @@ $langSwitch .= (str_contains($langSwitch, '?') ? '&' : '?') . 'lang=' . $otherLa
 <div class="vaadin-app">
 
   <header class="vaadin-appbar">
-    <a class="brand" href="<?= $base ?>/dashboard"><span class="logo">FNCRB</span></a>
+    <a class="brand" href="<?= $base ?>/dashboard"><span class="logo">FINACREB</span></a>
     <nav class="app-tabs">
       <?php if ($u): ?>
         <a href="<?= $base ?>/dashboard"><?= $t('nav_dashboard') ?></a>

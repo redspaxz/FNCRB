@@ -42,7 +42,7 @@ html, body {
 .vaadin-appbar .brand .logo {
   padding: 0 9px; height: 28px; border-radius: 8px; width: auto;
   background: linear-gradient(135deg, var(--lumo-primary), #37a3f5);
-  color: #fff; font-size: 12px; font-weight: 800; letter-spacing: .04em;
+  color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .03em;
   display: inline-flex; align-items: center; justify-content: center;
 }
 .vaadin-appbar .app-tabs { display: flex; gap: 4px; margin-left: 16px; height: 100%; }
