@@ -81,3 +81,14 @@ curl -X POST http://localhost/FNCRB/public/api/v1/inquiry \
 Inquiries without recorded borrower consent expose the querying institution to COBAC sanctions and national data-privacy penalties. The system enforces this at the service layer and audits every refusal.
 
 Provisioning rates, concentration limits and score weights are configurable illustrations of COBAC conventions — calibrate with your compliance officer before production use.
+
+## Security & operations (regulatory hardening)
+
+- **2FA (TOTP)**: each user enrolls under *My Account → Two-factor authentication* (RFC 6238, pure PHP, works with Google Authenticator/Authy/FreeOTP). Login then requires email + password + one-time code; failures are throttled and audited.
+- **User lifecycle**: INST_ADMINs manage their institution's accounts (*Users*): create with generated one-time passwords, lock/unlock, admin password reset. SUPER_ADMIN can see all (`/users?all`).
+- **Password policy**: ≥10 chars with upper/lower/digit, enforced on change and on generated credentials.
+- **Ops scripts** (schedule via cron):
+  - `php scripts/retention_purge.php` — monthly privacy retention (consents >12m past expiry, login attempts >6m, score snapshots >24m; never touches the audit chain)
+  - `php scripts/late_report_monitor.php [days]` — daily BEAC/COBAC periodicity control; exits non-zero when institutions miss reporting (cron alerting)
+  - `sh scripts/backup.sh /backup/dir [user] [pass]` — nightly gzipped dump, keeps last 30
+- **Prudential calibration**: single-borrower concentration limit configurable via `security.single_borrower_limit_pct` in `config.php` — set the official COBAC/BEAC figure.

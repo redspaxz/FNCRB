@@ -58,8 +58,24 @@ final class AuthController
         }
         if ($user['status'] !== 'ACTIVE') {
             Auth::recordAttempt($email, $ip, false);
-            View::render('auth/login', ['error' => \App\Core\Lang::t('err_account') . ' ' . strtolower($user['status']) . App\Core\Lang::t('err_contact_admin'), 'email' => $email], null);
+            View::render('auth/login', ['error' => \App\Core\Lang::t('err_account') . ' ' . strtolower($user['status']) . \App\Core\Lang::t('err_contact_admin'), 'email' => $email], null);
             return;
+        }
+
+        // Second factor (TOTP) for accounts with 2FA enrolled
+        if (!empty($user['totp_secret'])) {
+            $otp = preg_replace('/\D/', '', (string)($_POST['otp'] ?? ''));
+            if ($otp === '') {
+                Audit::log('MFA_CHALLENGE', ['type' => 'user', 'id' => $user['id']]);
+                View::render('auth/login', ['error' => null, 'email' => $email, 'need_otp' => true], null);
+                return;
+            }
+            if (!\App\Core\Totp::verify($user['totp_secret'], $otp)) {
+                Auth::recordAttempt($email, $ip, false);
+                Audit::log('MFA_FAILED', ['type' => 'user', 'id' => $user['id']]);
+                View::render('auth/login', ['error' => \App\Core\Lang::t('err_otp'), 'email' => $email, 'need_otp' => true], null);
+                return;
+            }
         }
 
         Auth::recordAttempt($email, $ip, true);

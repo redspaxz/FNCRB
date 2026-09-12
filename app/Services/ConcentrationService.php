@@ -11,8 +11,12 @@ use App\Core\Database;
  */
 final class ConcentrationService
 {
-    /** COBAC single-borrower limit as % of net equity (illustrative 25%). */
-    private const SINGLE_BORROWER_LIMIT_PCT = 25.0;
+    /** Single-borrower limit as % of net equity — configurable in config.php. */
+    private static function limitPct(): float
+    {
+        $c = require dirname(__DIR__, 2) . '/config/config.php';
+        return (float)($c['security']['single_borrower_limit_pct'] ?? 25.0);
+    }
 
     public static function report(?int $institutionId = null): array
     {
@@ -50,7 +54,7 @@ final class ConcentrationService
                 'pct_of_equity' => $pct,
             ];
             $byInst[$iid]['top_exposures'][] = $entry;
-            if ($pct !== null && $pct > self::SINGLE_BORROWER_LIMIT_PCT) {
+            if ($pct !== null && $pct > self::limitPct()) {
                 $byInst[$iid]['breaches'][] = $entry;
             }
         }

@@ -27,6 +27,9 @@ $config = [
         'min_password_len'   => 10,
         'csrf_token_name'    => '_csrf',
         'consent_ttl_days'   => 90,
+        // Prudential calibration — align with the official COBAC/BEAC figures
+        // before production (see ConcentrationService / ClassificationService).
+        'single_borrower_limit_pct' => 25.0,
     ],
 ];
 

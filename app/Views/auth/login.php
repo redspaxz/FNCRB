@@ -26,8 +26,15 @@ $langSwitch = '?lang=' . (App\Core\Lang::lang() === 'fr' ? 'en' : 'fr');
       </div>
       <div class="mb-3">
         <label class="form-label"><?= $t('password') ?></label>
-        <input type="password" name="password" class="form-control" required>
+        <input type="password" name="password" class="form-control" required<?= empty($need_otp) ? ' autofocus' : '' ?>>
       </div>
+      <?php if (!empty($need_otp)): ?>
+      <div class="mb-3">
+        <label class="form-label">One-time code (2FA)</label>
+        <input type="text" name="otp" class="form-control" inputmode="numeric" pattern="\d{6}" maxlength="6" placeholder="000000" autofocus required>
+        <div class="form-text">Enter the 6-digit code from your authenticator app.</div>
+      </div>
+      <?php endif; ?>
       <div class="form-check mb-3">
         <input class="form-check-input" type="checkbox" name="terms_accepted" id="termsAccepted" value="1" required>
         <label class="form-check-label" for="termsAccepted" style="font-weight:400;font-size:12.5px;">

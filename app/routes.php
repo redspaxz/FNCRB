@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use App\Controllers\AccountController;
 use App\Controllers\ApiController;
 use App\Controllers\AuditController;
 use App\Controllers\AuthController;
@@ -11,6 +12,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\IncidentController;
 use App\Controllers\LoanController;
 use App\Controllers\PageController;
+use App\Controllers\UserController;
 
 /** @var Router $router */
 
@@ -44,6 +46,18 @@ $router->get('/compliance/concentration',       [ComplianceController::class, 'c
 $router->post('/compliance/reclassify',         [ComplianceController::class, 'reclassify']);
 
 $router->get('/audit',               [AuditController::class, 'index']);
+
+// Account & user administration
+$router->get('/account',             [AccountController::class, 'index']);
+$router->post('/account/password',   [AccountController::class, 'changePassword']);
+$router->post('/account/2fa/start',  [AccountController::class, 'start2fa']);
+$router->post('/account/2fa/confirm',[AccountController::class, 'confirm2fa']);
+$router->post('/account/2fa/disable',[AccountController::class, 'disable2fa']);
+$router->get('/users',               [UserController::class, 'index']);
+$router->get('/users/create',        [UserController::class, 'create']);
+$router->post('/users',              [UserController::class, 'store']);
+$router->post('/users/toggle',       [UserController::class, 'toggle']);
+$router->post('/users/reset-password', [UserController::class, 'resetPassword']);
 
 // Machine-to-machine API
 $router->post('/api/v1/loans',       [ApiController::class, 'ingestLoans']);
