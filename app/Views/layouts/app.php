@@ -1,8 +1,11 @@
-<?php /** @var string $content @var array $u */ $u = App\Core\Auth::user(); $e = $data['e'] ?? fn($s) => htmlspecialchars((string)$s); $base = App\Core\Rbac::baseUrl();
+<?php /** @var string $content @var array $u */ $u = App\Core\Auth::user(); $e = $data['e'] ?? fn($s) => htmlspecialchars((string)$s); $base = App\Core\Rbac::baseUrl(); $t = fn($k) => App\Core\Lang::t($k);
 $initials = $u ? mb_strtoupper(mb_substr($u['full_name'],0,1) . (mb_strpos($u['full_name'],' ') ? mb_substr($u['full_name'], mb_strpos($u['full_name'],' ')+1, 1) : '')) : '';
+$otherLang = App\Core\Lang::lang() === 'fr' ? 'en' : 'fr';
+$langSwitch = preg_replace('/([?&])lang=[^&]*/', '', $_SERVER['REQUEST_URI'] ?? '/');
+$langSwitch .= (str_contains($langSwitch, '?') ? '&' : '?') . 'lang=' . $otherLang;
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= App\Core\Lang::lang() ?>">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -19,15 +22,16 @@ $initials = $u ? mb_strtoupper(mb_substr($u['full_name'],0,1) . (mb_strpos($u['f
     <a class="brand" href="<?= $base ?>/dashboard"><span class="logo">FN</span> FNCRB</a>
     <nav class="app-tabs">
       <?php if ($u): ?>
-        <a href="<?= $base ?>/dashboard">Dashboard</a>
-        <?php if (App\Core\Rbac::can('inquiry.perform')): ?><a href="<?= $base ?>/inquiry">Inquiry</a><?php endif; ?>
-        <?php if (App\Core\Rbac::can('borrower.manage')): ?><a href="<?= $base ?>/borrowers">Borrowers</a><?php endif; ?>
-        <?php if (App\Core\Rbac::can('loan.view.own') || App\Core\Rbac::can('loan.view.all')): ?><a href="<?= $base ?>/loans">Portfolio</a><?php endif; ?>
-        <?php if (App\Core\Rbac::can('compliance.reports')): ?><a href="<?= $base ?>/compliance">Compliance</a><?php endif; ?>
+        <a href="<?= $base ?>/dashboard"><?= $t('nav_dashboard') ?></a>
+        <?php if (App\Core\Rbac::can('inquiry.perform')): ?><a href="<?= $base ?>/inquiry"><?= $t('nav_inquiry') ?></a><?php endif; ?>
+        <?php if (App\Core\Rbac::can('borrower.manage')): ?><a href="<?= $base ?>/borrowers"><?= $t('nav_borrowers') ?></a><?php endif; ?>
+        <?php if (App\Core\Rbac::can('loan.view.own') || App\Core\Rbac::can('loan.view.all')): ?><a href="<?= $base ?>/loans"><?= $t('nav_loans') ?></a><?php endif; ?>
+        <?php if (App\Core\Rbac::can('compliance.reports')): ?><a href="<?= $base ?>/compliance"><?= $t('nav_compliance') ?></a><?php endif; ?>
       <?php else: ?>
-        <a href="<?= $base ?>/login">Sign in</a>
+        <a href="<?= $base ?>/login"><?= $t('sign_in') ?></a>
       <?php endif; ?>
     </nav>
+    <a class="lang-switch" href="<?= $e($langSwitch) ?>" title="<?= $t('language') ?>"><?= strtoupper($otherLang) === 'EN' ? '🇬🇧 EN' : '🇫🇷 FR' ?></a>
     <?php if ($u): ?>
     <div class="userchip">
       <div class="meta text-end d-none d-md-block">
@@ -35,7 +39,7 @@ $initials = $u ? mb_strtoupper(mb_substr($u['full_name'],0,1) . (mb_strpos($u['f
         <div class="sub"><?= $e($u['role_code']) ?> · <?= $e($u['institution_code'] ?? 'COBAC/BEAC') ?></div>
       </div>
       <span class="avatar"><?= $e($initials) ?></span>
-      <a class="btn btn-sm" href="<?= $base ?>/logout">Sign out</a>
+      <a class="btn btn-sm" href="<?= $base ?>/logout"><?= $t('sign_out') ?></a>
     </div>
     <?php endif; ?>
   </header>
@@ -43,17 +47,17 @@ $initials = $u ? mb_strtoupper(mb_substr($u['full_name'],0,1) . (mb_strpos($u['f
   <div class="vaadin-shell">
     <?php if ($u): ?>
     <aside class="vaadin-nav">
-      <div class="nav-section">Registry</div>
-      <a href="<?= $base ?>/dashboard"><span class="ico">▦</span> Dashboard</a>
-      <?php if (App\Core\Rbac::can('inquiry.perform')): ?><a href="<?= $base ?>/inquiry"><span class="ico">⌕</span> Credit Inquiry</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('borrower.manage')): ?><a href="<?= $base ?>/borrowers"><span class="ico">👤</span> Borrowers</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('loan.view.own') || App\Core\Rbac::can('loan.view.all')): ?><a href="<?= $base ?>/loans"><span class="ico">▤</span> Loan Portfolio</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('collateral.view.own') || App\Core\Rbac::can('loan.view.all')): ?><a href="<?= $base ?>/collateral"><span class="ico">⛨</span> Collateral</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('incident.view.own') || App\Core\Rbac::can('incident.view.all')): ?><a href="<?= $base ?>/incidents"><span class="ico">⚠</span> Incidents</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('compliance.reports')): ?><a href="<?= $base ?>/compliance"><span class="ico">▣</span> Compliance</a><?php endif; ?>
-      <?php if (App\Core\Rbac::can('audit.view')): ?><a href="<?= $base ?>/audit"><span class="ico">☰</span> Audit Trail</a><?php endif; ?>
-      <div class="nav-section">Regulatory</div>
-      <div class="nav-note">COBAC · BEAC · CNEF · OHADA Uniform Act.<br>All inquiries require recorded borrower consent.</div>
+      <div class="nav-section"><?= $t('nav_section_registry') ?></div>
+      <a href="<?= $base ?>/dashboard"><span class="ico">▦</span> <?= $t('nav_dashboard') ?></a>
+      <?php if (App\Core\Rbac::can('inquiry.perform')): ?><a href="<?= $base ?>/inquiry"><span class="ico">⌕</span> <?= $t('nav_inquiry') ?></a><?php endif; ?>
+      <?php if (App\Core\Rbac::can('borrower.manage')): ?><a href="<?= $base ?>/borrowers"><span class="ico">👤</span> <?= $t('nav_borrowers') ?></a><?php endif; ?>
+      <?php if (App\Core\Rbac::can('loan.view.own') || App\Core\Rbac::can('loan.view.all')): ?><a href="<?= $base ?>/loans"><span class="ico">▤</span> <?= $t('nav_loans') ?></a><?php endif; ?>
+      <?php if (App\Core\Rbac::can('collateral.view.own') || App\Core\Rbac::can('loan.view.all')): ?><a href="<?= $base ?>/collateral"><span class="ico">⛨</span> <?= $t('nav_collateral') ?></a><?php endif; ?>
+      <?php if (App\Core\Rbac::can('incident.view.own') || App\Core\Rbac::can('incident.view.all')): ?><a href="<?= $base ?>/incidents"><span class="ico">⚠</span> <?= $t('nav_incidents') ?></a><?php endif; ?>
+      <?php if (App\Core\Rbac::can('compliance.reports')): ?><a href="<?= $base ?>/compliance"><span class="ico">▣</span> <?= $t('nav_compliance') ?></a><?php endif; ?>
+      <?php if (App\Core\Rbac::can('audit.view')): ?><a href="<?= $base ?>/audit"><span class="ico">☰</span> <?= $t('nav_audit') ?></a><?php endif; ?>
+      <div class="nav-section"><?= $t('nav_section_regulatory') ?></div>
+      <div class="nav-note">COBAC · BEAC · CNEF · OHADA. <?= $t('status_consent') ?>.</div>
     </aside>
     <?php endif; ?>
 

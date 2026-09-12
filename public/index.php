@@ -7,6 +7,7 @@ declare(strict_types=1);
 require dirname(__DIR__) . '/app/bootstrap.php';
 
 \App\Core\Auth::start();
+\App\Core\Lang::init();
 
 // Security headers (OWASP secure headers)
 header('X-Frame-Options: DENY');

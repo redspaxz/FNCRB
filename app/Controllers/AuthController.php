@@ -26,17 +26,17 @@ final class AuthController
         $ip    = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
 
         if ($email === '' || $pw === '') {
-            View::render('auth/login', ['error' => 'Email and password are required.', 'email' => $email], null);
+            View::render('auth/login', ['error' => \App\Core\Lang::t('err_credentials'), 'email' => $email], null);
             return;
         }
         if (empty($_POST['terms_accepted'])) {
             Audit::log('LOGIN_TERMS_REFUSED', null, ['email' => $email]);
-            View::render('auth/login', ['error' => 'You must review and accept the Terms & Conditions before signing in.', 'email' => $email], null);
+            View::render('auth/login', ['error' => \App\Core\Lang::t('err_terms'), 'email' => $email], null);
             return;
         }
         if (Auth::throttled($email, $ip)) {
             Audit::log('LOGIN_THROTTLED', null, ['email' => $email]);
-            View::render('auth/login', ['error' => 'Too many failed attempts. Account temporarily locked — try again later.', 'email' => $email], null);
+            View::render('auth/login', ['error' => \App\Core\Lang::t('err_throttled'), 'email' => $email], null);
             return;
         }
 
@@ -53,12 +53,12 @@ final class AuthController
         if (!$user || !password_verify($pw, $user['password_hash'])) {
             Auth::recordAttempt($email, $ip, false);
             Audit::log('LOGIN_FAILED', null, ['email' => $email]);
-            View::render('auth/login', ['error' => 'Invalid credentials.', 'email' => $email], null);
+            View::render('auth/login', ['error' => \App\Core\Lang::t('err_invalid'), 'email' => $email], null);
             return;
         }
         if ($user['status'] !== 'ACTIVE') {
             Auth::recordAttempt($email, $ip, false);
-            View::render('auth/login', ['error' => 'Account is ' . strtolower($user['status']) . '. Contact your administrator.', 'email' => $email], null);
+            View::render('auth/login', ['error' => \App\Core\Lang::t('err_account') . ' ' . strtolower($user['status']) . App\Core\Lang::t('err_contact_admin'), 'email' => $email], null);
             return;
         }
 
