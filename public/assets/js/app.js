@@ -36,4 +36,12 @@
       b.disabled = false;
     });
   }
+  // login: enable the submit button only after accepting the terms
+  var terms = document.getElementById('termsAccepted');
+  var loginBtn = document.getElementById('loginBtn');
+  if (terms && loginBtn) {
+    var sync = function () { loginBtn.disabled = !terms.checked; };
+    terms.addEventListener('change', sync);
+    sync();
+  }
 })();

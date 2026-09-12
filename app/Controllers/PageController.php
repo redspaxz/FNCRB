@@ -16,6 +16,11 @@ final class PageController
         View::render('home/landing', [], null);
     }
 
+    public function terms(): void
+    {
+        View::render('home/terms', [], null);
+    }
+
     public function notFound(): void
     {
         View::render('errors/error', ['code' => 404, 'message' => 'Page not found'], 'app');

@@ -29,6 +29,11 @@ final class AuthController
             View::render('auth/login', ['error' => 'Email and password are required.', 'email' => $email], null);
             return;
         }
+        if (empty($_POST['terms_accepted'])) {
+            Audit::log('LOGIN_TERMS_REFUSED', null, ['email' => $email]);
+            View::render('auth/login', ['error' => 'You must review and accept the Terms & Conditions before signing in.', 'email' => $email], null);
+            return;
+        }
         if (Auth::throttled($email, $ip)) {
             Audit::log('LOGIN_THROTTLED', null, ['email' => $email]);
             View::render('auth/login', ['error' => 'Too many failed attempts. Account temporarily locked — try again later.', 'email' => $email], null);
@@ -59,9 +64,10 @@ final class AuthController
 
         Auth::recordAttempt($email, $ip, true);
         Auth::login($user);
+        $_SESSION['terms_accepted_at'] = date('c');
         Rbac::loadForUser((int)$user['role_id']);
         Database::pdo()->prepare("UPDATE users SET last_login_at = NOW() WHERE id = ?")->execute([$user['id']]);
-        Audit::log('LOGIN_SUCCESS', ['type' => 'user', 'id' => $user['id']]);
+        Audit::log('LOGIN_SUCCESS', ['type' => 'user', 'id' => $user['id']], ['terms_version' => 'T&C-2026-09']);
         header('Location: ' . Rbac::baseUrl() . '/dashboard');
     }
 

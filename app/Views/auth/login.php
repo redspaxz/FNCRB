@@ -26,7 +26,13 @@
         <label class="form-label">Password</label>
         <input type="password" name="password" class="form-control" required>
       </div>
-      <button class="btn btn-primary w-100">Sign in</button>
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" name="terms_accepted" id="termsAccepted" value="1" required>
+        <label class="form-check-label" for="termsAccepted" style="font-weight:400;font-size:12.5px;">
+          I have read and accept the <a href="<?= $base ?>/terms" target="_blank" rel="noopener">Terms &amp; Conditions</a> of the FNCRB Central Credit Registry.
+        </label>
+      </div>
+      <button class="btn btn-primary w-100" id="loginBtn" disabled>Sign in</button>
     </form>
     <p class="text-muted small mt-2 mb-0 login-note">Access restricted to authorized registry participants. All access attempts are logged and audited.</p>
   </div>

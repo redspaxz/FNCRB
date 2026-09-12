@@ -15,6 +15,7 @@ use App\Controllers\PageController;
 /** @var Router $router */
 
 $router->get('/',                    [PageController::class, 'home']);
+$router->get('/terms',               [PageController::class, 'terms']);
 $router->get('/login',               [AuthController::class, 'showLogin']);
 $router->post('/login',              [AuthController::class, 'login']);
 $router->get('/logout',              [AuthController::class, 'logout']);
