@@ -14,7 +14,9 @@ use App\Services\ReportService;
 
 /**
  * Module 1/2/4 — Machine-to-machine API (Category 2 real-time inquiry, CBS ingestion).
- * Auth: header X-FNCRB-Key (institution API key, SHA-256 stored) or session.
+ * Channel security (ApiGuard): HMAC-SHA256 request signing (timestamp.nonce.body),
+ * ±5min clock window, nonce replay protection, 60 req/min rate limit, optional IP allow-list.
+ * All payloads must carry schema_version "1.0"; errors use the typed envelope {error:{code,message}}.
  */
 final class ApiController
 {
@@ -25,16 +27,22 @@ final class ApiController
         return is_array($d) ? $d : [];
     }
 
+    private function requireSchema(array $d): void
+    {
+        if (($d['schema_version'] ?? null) !== '1.0') {
+            \App\Core\ApiGuard::fail('SCHEMA_VERSION', 'Payload must declare "schema_version":"1.0".', 422);
+        }
+    }
+
     /** POST /api/v1/loans — batch upsert of COBAC-standardized portfolio. */
     public function ingestLoans(): void
     {
-        Rbac::requireApi('loan.report');
-        $inst = \App\Core\ApiAuth::institution() ?? ['id' => \App\Core\Auth::institutionId()];
-        if (empty($inst['id'])) Response::json(['error' => 'No institution scope'], 403);
+        $inst = \App\Core\ApiGuard::authenticate();
 
         $d = $this->body();
+        $this->requireSchema($d);
         $records = $d['loans'] ?? ($d ?: null);
-        if (!is_array($records) || !$records) Response::json(['error' => 'Empty payload'], 422);
+        if (!is_array($records) || !$records) \App\Core\ApiGuard::fail('EMPTY_PAYLOAD', 'Request body must contain loan records.', 422);
 
         $accepted = 0; $errors = [];
         foreach ($records as $i => $rec) {
@@ -47,17 +55,17 @@ final class ApiController
             else { $errors[] = ['index' => $i, 'messages' => IngestionService::$errors]; IngestionService::$errors = []; }
         }
         Audit::log('DATA_WRITE', ['type' => 'batch', 'id' => ''], ['accepted' => $accepted, 'rejected' => count($errors)]);
-        Response::json(['accepted' => $accepted, 'rejected' => count($errors), 'errors' => $errors],
+        Response::json(['schema_version' => '1.0', 'accepted' => $accepted, 'rejected' => count($errors), 'errors' => $errors],
             $accepted > 0 ? 200 : 422);
     }
 
     /** POST /api/v1/inquiry — real-time consent-gated credit check. */
     public function inquiry(): void
     {
-        Rbac::requireApi('inquiry.perform');
-        $inst = \App\Core\ApiAuth::institution() ?? ['id' => \App\Core\Auth::institutionId()];
+        $inst = \App\Core\ApiGuard::authenticate();
 
         $d = $this->body();
+        $this->requireSchema($d);
         // identity: registry id, master_ref, cni or niu
         $borrower = null;
         $pdo = Database::pdo();
@@ -73,7 +81,7 @@ final class ApiController
             $cni = $d['cni_number'] ?? null; $niu = $d['niu'] ?? null; $coop = $d['coop_member_id'] ?? null;
             $borrower = \App\Services\ReconciliationService::findByIdentity($cni, $niu, $coop);
         }
-        if (!$borrower) Response::json(['error' => 'Borrower not found in registry'], 404);
+        if (!$borrower) \App\Core\ApiGuard::fail('BORROWER_NOT_FOUND', 'No borrower matches the supplied identity in the registry.', 404);
 
         // consent must be presented with the request OR pre-recorded
         $consentId = isset($d['consent_id']) ? (int)$d['consent_id'] : null;
@@ -91,7 +99,7 @@ final class ApiController
             $d['purpose'] ?? 'credit underwriting', $consentId,
             (int)($d['declared_monthly_income'] ?? 0)
         );
-        if (!$report) Response::json(['error' => InquiryService::$error], 412); // 412 Precondition Failed: no consent
+        if (!$report) \App\Core\ApiGuard::fail('CONSENT_REQUIRED', InquiryService::$error, 412);
 
         Response::json([
             'borrower' => [
@@ -119,6 +127,7 @@ final class ApiController
                 'type' => $pi['incident_type'], 'amount_xaf' => (int)$pi['amount_xaf'],
                 'date' => $pi['incident_date'], 'resolved' => (bool)$pi['resolved'],
             ], $report['incidents']),
+            'schema_version' => '1.0',
             'generated_at' => $report['generated_at'],
         ]);
     }
@@ -129,7 +138,7 @@ final class ApiController
         // regulator session or super-admin only (not available to API keys)
         \App\Core\Auth::start();
         if (!\App\Core\Auth::check() || !Rbac::can('compliance.reports')) {
-            Response::json(['error' => 'Unauthenticated or forbidden'], 401);
+            \App\Core\ApiGuard::fail('AUTH_REQUIRED', 'Regulator session required for the supervisory package.', 401);
         }
         Response::json(ReportService::supervisoryPackage());
     }

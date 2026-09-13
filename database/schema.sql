@@ -22,6 +22,7 @@ CREATE TABLE institutions (
     net_equity_xaf BIGINT UNSIGNED NOT NULL DEFAULT 0,
     status        ENUM('ACTIVE','SUSPENDED','REVOKED') NOT NULL DEFAULT 'ACTIVE',
     api_key_hash  CHAR(64)     NULL,           -- SHA-256 of API key
+    ip_allowlist  TEXT         NULL,           -- machine-API IP allow-list (CSV, NULL = open)
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
@@ -191,6 +192,17 @@ CREATE TABLE payment_incidents (
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (institution_id) REFERENCES institutions(id),
     FOREIGN KEY (borrower_id) REFERENCES borrowers(id)
+) ENGINE=InnoDB;
+
+
+-- Nonce replay protection + request-rate metering (one signed request = one nonce)
+CREATE TABLE api_nonces (
+    nonce          CHAR(64)     NOT NULL PRIMARY KEY,
+    institution_id INT UNSIGNED NOT NULL,
+    ip_address     VARCHAR(45)  NULL,
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_nonce_inst_time (institution_id, created_at),
+    FOREIGN KEY (institution_id) REFERENCES institutions(id)
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------------------

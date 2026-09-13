@@ -1,7 +1,7 @@
 <?php $e = $data['e']; ?>
 <h3>Loan Portfolio</h3>
 <?php if ($isRegulator): ?><div class="alert alert-info py-2">National view — all reporting institutions.</div><?php endif; ?>
-<div class="mb-2"><a class="btn btn-primary btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/loans/create">Submit loan record</a></div>
+<div class="mb-2 d-flex gap-2"><a class="btn btn-primary btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/loans/create">Submit loan record</a><a class="btn btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/reports/loans.csv">Export CSV</a><a class="btn btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/reports/loans.xlsx">Export XLSX</a></div>
 <table class="table table-striped table-sm bg-white">
   <thead><tr><th>Institution</th><th>Borrower</th><th>Contract</th><th>Type</th><th>Outstanding (XAF)</th><th>Monthly</th><th>DPD</th><th>COBAC class</th><th>Provision</th><th>Status</th><th>Reported</th></tr></thead>
   <tbody>

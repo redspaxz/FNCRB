@@ -12,6 +12,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\IncidentController;
 use App\Controllers\LoanController;
 use App\Controllers\PageController;
+use App\Controllers\ReportController;
 use App\Controllers\UserController;
 
 /** @var Router $router */
@@ -63,3 +64,9 @@ $router->post('/users/reset-password', [UserController::class, 'resetPassword'])
 $router->post('/api/v1/loans',       [ApiController::class, 'ingestLoans']);
 $router->post('/api/v1/inquiry',     [ApiController::class, 'inquiry']);
 $router->get('/api/v1/supervisory-package', [ApiController::class, 'supervisoryPackage']);
+
+// Report downloads (session users)
+$router->get('/reports/loans.csv',   [ReportController::class, 'loansCsv']);
+$router->get('/reports/loans.xlsx',  [ReportController::class, 'loansXlsx']);
+$router->get('/reports/supervisory.xlsx', [ReportController::class, 'supervisoryXlsx']);
+$router->get('/reports/incidents.csv',    [ReportController::class, 'incidentsCsv']);

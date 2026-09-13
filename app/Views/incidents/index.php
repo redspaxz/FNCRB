@@ -1,5 +1,5 @@
 <?php $e = $data['e']; ?>
-<h3>Payment Incidents <small class="text-muted fs-6">Centrale des Incidents de Paiement (CNEF/CIP)</small></h3>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><h3>Payment Incidents <small class="text-muted fs-6">Centrale des Incidents de Paiement (CNEF/CIP)</small></h3><a class="btn btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/reports/incidents.csv">Export CSV</a></div>
 <?php if ($isRegulator): ?><div class="alert alert-info py-2">National view.</div><?php endif; ?>
 <table class="table table-striped table-sm bg-white">
   <thead><tr><th>Institution</th><th>Borrower</th><th>Type</th><th>Instrument</th><th>Amount (XAF)</th><th>Date</th><th>Status</th></tr></thead>

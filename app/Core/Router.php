@@ -23,8 +23,13 @@ final class Router
     public function dispatch(string $method, string $uri): void
     {
         $path = parse_url($uri, PHP_URL_PATH);
-        // strip sub-directory base if deployed under /FNCRB/public
-        $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+        // strip sub-directory base if the entry script lives in one (e.g. /fncrb/public).
+        // only when SCRIPT_NAME actually points at a PHP entry script — the built-in
+        // dev server sets it to the full URI for dotted paths (/reports/loans.csv).
+        $script = $_SERVER['SCRIPT_NAME'] ?? '';
+        $base = (pathinfo($script, PATHINFO_EXTENSION) === 'php')
+            ? rtrim(str_replace('\\', '/', dirname($script)), '/')
+            : '';
         if ($base !== '' && str_starts_with($path, $base)) {
             $path = substr($path, strlen($base));
         }

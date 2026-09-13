@@ -35,7 +35,10 @@ function xaf($n){ return number_format((int)$n) . ' XAF'; }
 
 <?php if ($report): ?>
 <hr>
-<h4>Credit report <small class="text-muted fs-6">generated <?= $e($report['generated_at']) ?></small></h4>
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+  <h4>Credit report <small class="text-muted fs-6">generated <?= $e($report['generated_at']) ?></small></h4>
+  <button class="btn btn-sm no-print" onclick="window.print()">Print / Save as PDF</button>
+</div>
 
 <div class="row g-3 my-1">
   <div class="col-md-3"><div class="card p-3 text-center bg-white border">

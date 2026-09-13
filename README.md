@@ -133,3 +133,48 @@ Latest run: **2026-09-13 · 47 checks · PASS** (scripted black-box run against 
 5. `/audit` shows **Chain integrity verified**
 6. `php scripts/late_report_monitor.php` and `php scripts/retention_purge.php` run clean
 7. FR/EN switch renders on login and terms pages
+
+---
+
+## Machine API v1.1 — hardened channel
+
+Every `/api/v1/*` machine request must now be **signed** (HMAC-SHA256) and carries replay protection:
+
+| Header | Content |
+|---|---|
+| `X-FNCRB-Key` | institution API key (SHA-256 at rest) |
+| `X-FNCRB-Timestamp` | unix seconds, accepted within ±300 s |
+| `X-FNCRB-Nonce` | unique hex string (16–64 chars) per request |
+| `X-FNCRB-Signature` | `hex(hmac_sha256(api_key, "<timestamp>.<nonce>.<raw body>"))` |
+
+Enforced server-side: signature verification (constant-time), clock window, one-time nonces (DB-enforced, replay → `409`), **60 requests/minute per institution** (→ `429`), optional **per-institution IP allow-list** (`institutions.ip_allowlist`, CSV). All rejections are audited.
+
+Payloads must declare `"schema_version":"1.0"`; responses echo it. Errors use the typed envelope:
+
+```json
+{"error": {"code": "CONSENT_REQUIRED", "message": "No valid borrower consent on record..."}}
+```
+
+Error codes: `AUTH_MISSING_KEY` · `AUTH_BAD_TIMESTAMP` · `AUTH_BAD_NONCE` · `AUTH_MISSING_SIGNATURE` · `AUTH_INVALID_KEY` · `AUTH_BAD_SIGNATURE` · `AUTH_IP_BLOCKED` · `AUTH_REPLAYED_NONCE` · `RATE_LIMITED` · `SCHEMA_VERSION` · `EMPTY_PAYLOAD` · `BORROWER_NOT_FOUND` · `CONSENT_REQUIRED` · `AUTH_REQUIRED`
+
+Example (bash + openssl):
+
+```bash
+KEY=fncrb_...; BODY='{"schema_version":"1.0","cni_number":"118545678","consent_ref":"CS-1","consent_type":"DIGITAL"}'
+TS=$(date +%s); NONCE=$(openssl rand -hex 16)
+SIG=$(printf '%s.%s.%s' "$TS" "$NONCE" "$BODY" | openssl dgst -sha256 -hmac "$KEY" -hex | awk '{print $NF}')
+curl -X POST https://host/api/v1/inquiry -H "X-FNCRB-Key: $KEY" -H "X-FNCRB-Timestamp: $TS" \
+     -H "X-FNCRB-Nonce: $NONCE" -H "X-FNCRB-Signature: $SIG" -H "Content-Type: application/json" -d "$BODY"
+```
+
+> **PHP requirement**: the XLSX export engine needs the `zip` extension (`extension=zip` in php.ini).
+> **Upgrade note**: apply `database/upgrade_v2.sql` (api_nonces table + ip_allowlist column); existing plain-key API clients must be migrated to signed requests.
+
+## Report exports
+
+- `GET /reports/loans.csv` · `/reports/loans.xlsx` — portfolio return (RBAC-scoped: own institution or national for regulators)
+- `GET /reports/supervisory.xlsx` — COBAC asset-classification package (compliance roles)
+- `GET /reports/incidents.csv` — CIP incidents
+- XLSX downloads carry an `X-Report-SHA256` integrity header; every export is audited (`REPORT_EXPORT`).
+- The web credit report has a **Print / Save as PDF** action (print stylesheet).
+- `php scripts/generate_monthly_reports.php` — monthly per-institution XLSX returns into `storage/reports/` with SHA-256 checksums, audited (cron: `5 0 1 * *`).

@@ -4,6 +4,7 @@
   <div class="d-flex gap-2">
     <button id="btn-reclassify" class="btn btn-outline-primary btn-sm">Run classification &amp; provisioning</button>
     <a class="btn btn-outline-secondary btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/compliance/supervisory-package" target="_blank">Supervisory package (JSON)</a>
+    <a class="btn btn-outline-secondary btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/reports/supervisory.xlsx">Supervisory XLSX</a>
     <a class="btn btn-outline-secondary btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/compliance/concentration" target="_blank">Concentration ratios (JSON)</a>
   </div>
 </div>

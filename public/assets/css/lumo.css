@@ -250,3 +250,13 @@ body.login-page {
 .hero h1 { font-size: 28px; font-weight: 800; margin-top: 16px; }
 .hero .lead-sub { font-size: 15px; color: var(--lumo-secondary); }
 .hero .reg-note { font-size: 12.5px; color: var(--lumo-secondary); }
+
+/* ---------- Print (credit report -> PDF) ---------- */
+@media print {
+  .vaadin-nav, .vaadin-appbar .app-tabs, .vaadin-appbar .userchip,
+  .vaadin-appbar .lang-switch, .no-print, footer { display: none !important; }
+  .vaadin-appbar { position: static; box-shadow: none; }
+  body { background: #fff !important; }
+  .vaadin-content { padding: 0 !important; }
+  .card, .table { box-shadow: none !important; }
+}
