@@ -9,6 +9,7 @@ use App\Core\Rbac;
 use App\Core\Response;
 use App\Core\Validator;
 use App\Services\IngestionService;
+use App\Services\DataQualityService;
 use App\Services\InquiryService;
 use App\Services\ReportService;
 
@@ -55,6 +56,7 @@ final class ApiController
             else { $errors[] = ['index' => $i, 'messages' => IngestionService::$errors]; IngestionService::$errors = []; }
         }
         Audit::log('DATA_WRITE', ['type' => 'batch', 'id' => ''], ['accepted' => $accepted, 'rejected' => count($errors)]);
+        \App\Services\DataQualityService::logSubmission((int)$inst['id'], 'API', count($records), $accepted, count($errors));
         Response::json(['schema_version' => '1.0', 'accepted' => $accepted, 'rejected' => count($errors), 'errors' => $errors],
             $accepted > 0 ? 200 : 422);
     }

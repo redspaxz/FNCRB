@@ -56,6 +56,8 @@ $langSwitch .= (str_contains($langSwitch, '?') ? '&' : '?') . 'lang=' . $otherLa
       <?php if (App\Core\Rbac::can('incident.view.own') || App\Core\Rbac::can('incident.view.all')): ?><a href="<?= $base ?>/incidents"><span class="ico">⚠</span> <?= $t('nav_incidents') ?></a><?php endif; ?>
       <?php if (App\Core\Rbac::can('compliance.reports')): ?><a href="<?= $base ?>/compliance"><span class="ico">▣</span> <?= $t('nav_compliance') ?></a><?php endif; ?>
       <?php if (App\Core\Rbac::can('audit.view')): ?><a href="<?= $base ?>/audit"><span class="ico">☰</span> <?= $t('nav_audit') ?></a><?php endif; ?>
+      <?php if (App\Core\Rbac::can('analytics.view')): ?><a href="<?= $base ?>/analytics"><span class="ico">📈</span> <?= $t('nav_analytics') ?></a><?php endif; ?>
+      <?php if (App\Core\Rbac::can('disputes.file') || App\Core\Rbac::can('disputes.work')): ?><a href="<?= $base ?>/disputes"><span class="ico">⚖</span> <?= $t('nav_disputes') ?></a><?php endif; ?>
       <?php if (App\Core\Rbac::can('users.manage')): ?><a href="<?= $base ?>/users"><span class="ico">🛂</span> <?= $t('nav_users') ?></a><?php endif; ?>
       <div class="nav-section"><?= $t('nav_account') ?></div>
       <a href="<?= $base ?>/account"><span class="ico">🔑</span> <?= $t('nav_account') ?></a>

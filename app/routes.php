@@ -4,11 +4,13 @@ declare(strict_types=1);
 use App\Controllers\AccountController;
 use App\Controllers\ApiController;
 use App\Controllers\AuditController;
+use App\Controllers\AnalyticsController;
 use App\Controllers\AuthController;
 use App\Controllers\BorrowerController;
 use App\Controllers\CollateralController;
 use App\Controllers\ComplianceController;
 use App\Controllers\DashboardController;
+use App\Controllers\DisputeController;
 use App\Controllers\IncidentController;
 use App\Controllers\LoanController;
 use App\Controllers\PageController;
@@ -65,6 +67,14 @@ $router->post('/users/reset-password', [UserController::class, 'resetPassword'])
 $router->post('/api/v1/loans',       [ApiController::class, 'ingestLoans']);
 $router->post('/api/v1/inquiry',     [ApiController::class, 'inquiry']);
 $router->get('/api/v1/supervisory-package', [ApiController::class, 'supervisoryPackage']);
+
+// Analytics & consumer disputes
+$router->get("/analytics",              [AnalyticsController::class, "index"]);
+$router->get("/analytics.json",         [AnalyticsController::class, "json"]);
+$router->get("/disputes",               [DisputeController::class, "index"]);
+$router->get("/disputes/create",        [DisputeController::class, "create"]);
+$router->post("/disputes",              [DisputeController::class, "store"]);
+$router->post("/disputes/transition",   [DisputeController::class, "transition"]);
 
 // Report downloads (session users)
 $router->get('/reports/loans.csv',   [ReportController::class, 'loansCsv']);

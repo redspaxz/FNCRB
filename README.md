@@ -178,3 +178,19 @@ curl -X POST https://host/api/v1/inquiry -H "X-FNCRB-Key: $KEY" -H "X-FNCRB-Time
 - XLSX downloads carry an `X-Report-SHA256` integrity header; every export is audited (`REPORT_EXPORT`).
 - The web credit report has a **Print / Save as PDF** action (print stylesheet).
 - `php scripts/generate_monthly_reports.php` — monthly per-institution XLSX returns into `storage/reports/` with SHA-256 checksums, audited (cron: `5 0 1 * *`).
+
+---
+
+## Four-pillar analytics & consumer rights (upgrade v3)
+
+Apply `database/upgrade_v3.sql` (ingestion_log, disputes, data_corrections + new permissions: `disputes.file`, `disputes.work`, `analytics.view`).
+
+**1 · Data Ingestion & Quality Analytics** (`/analytics`) — per-provider scorecard: **accuracy** (submission rejection rate from `ingestion_log`, written on every API batch), **completeness** (COBAC-standard field population), **timeliness** (reporting freshness vs 35-day threshold) and a composite **quality score/grade** (40/30/30) + identity-reconciliation queue count.
+
+**2 · Credit Bureau Operations & Inquiry Metrics** — inquiry volume (30-day trend chart), demand ranking by institution, channel mix (WEB/API), unique borrowers queried, active subscribers, and **consent-compliance rate** (inquiries vs audited refusals).
+
+**3 · Registry & System Performance** — signed API throughput per hour (24h), audit-event heartbeat (14d), API security rejections, failed-logins/throttle events, 2FA adoption, audit-chain integrity status, and registry data inventory.
+
+**4 · Consumer Rights & Dispute Management** (`/disputes`) — statutory workflow per Law 2010/012: institutions **file disputes** on behalf of consumers (types: inaccurate balance, wrong classification, not-my-loan, duplicate identity, stale data) with a **30-day SLA**; bureau staff/regulators **review → correct or reject**. Corrections apply whitelisted field changes to `loans`/`borrowers` with an old/new **evidence trail** (`data_corrections`) and full audit logging. Illegal status transitions are rejected server-side; over-SLA cases are highlighted.
+
+All four sections render on `/analytics` (charts + KPI tiles) and as JSON at `/analytics.json`. RBAC: officers/compliance file disputes; regulators/super-admin work them; analytics visible to admins/compliance/regulators.
