@@ -78,6 +78,8 @@ final class Lang
             'dash_workflow_body' => 'Category 1 MFIs must query the registry before approving member credit. Category 2 micro-banks perform real-time API inquiries during underwriting and submit borrower performance and dishonored instruments. Category 3 institutions run comprehensive credit history checks for uncollateralized project finance.',
             // status bar
             'err_otp' => 'Invalid or missing one-time code. Enter the 6-digit code from your authenticator app.',
+            'nav_analytics' => 'Analytics',
+            'nav_disputes' => 'Disputes',
             'nav_users' => 'Users',
             'nav_account' => 'My Account',
             'status_ready' => 'Ready — FNCRB Central Credit Registry',
@@ -141,6 +143,8 @@ final class Lang
             'dash_workflow' => 'Rappel du processus obligatoire',
             'dash_workflow_body' => 'Les IMF de Catégorie 1 doivent consulter le registre avant d’approuver un crédit à un membre. Les micro-banques de Catégorie 2 effectuent des interrogations API en temps réel lors de l’octroi et déclarent la performance des emprunteurs et les instruments impayés. Les institutions de Catégorie 3 réalisent des vérifications complètes de l’historique de crédit pour le financement de projets sans garantie.',
             'err_otp' => 'Code à usage unique invalide ou manquant. Saisissez le code à 6 chiffres de votre application d’authentification.',
+            'nav_analytics' => 'Analytique',
+            'nav_disputes' => 'Litiges',
             'nav_users' => 'Utilisateurs',
             'nav_account' => 'Mon compte',
             'status_ready' => 'Prêt — Centrale des Risques FNCRB',
