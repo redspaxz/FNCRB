@@ -6,6 +6,7 @@ namespace App\Controllers;
 use App\Core\Database;
 use App\Core\Rbac;
 use App\Core\View;
+use App\Services\AnalyticsService;
 
 final class DashboardController
 {
@@ -34,5 +35,14 @@ final class DashboardController
             'stats' => $stats,
             'isRegulator' => $isRegulator,
         ]);
+    }
+
+    /** KPI feed for dashboard charts (JSON). */
+    public function analytics(): void
+    {
+        if (!\App\Core\Auth::check()) {
+            \App\Core\Response::json(["error" => ["code" => "AUTH_REQUIRED", "message" => "Session required."]], 401);
+        }
+        \App\Core\Response::json(AnalyticsService::kpis(\App\Core\Auth::institutionId()));
     }
 }

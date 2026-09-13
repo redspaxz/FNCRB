@@ -264,3 +264,20 @@ body.login-page {
 /* clickable dashboard stat cards */
 a.col-md-4 .stat-card, .stat-card { transition: transform .12s, box-shadow .12s; cursor: pointer; }
 a.col-md-4:hover .stat-card { transform: translateY(-2px); box-shadow: var(--lumo-shadow-md) !important; }
+
+/* ---------- Dashboard charts ---------- */
+.chart-box { min-height: 210px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.chart-box svg { width: 100%; max-width: 100%; height: auto; }
+.chart-donut-value { font-size: 22px; font-weight: 700; fill: var(--lumo-text); }
+.chart-donut-sub { font-size: 10px; fill: var(--lumo-secondary); }
+.chart-empty, .chart-tick { font-size: 10px; fill: var(--lumo-secondary); }
+.chart-tick-val { font-size: 10px; font-weight: 700; fill: var(--lumo-text); }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: center; font-size: 11px; color: var(--lumo-secondary); }
+.chart-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; }
+.chart-legend b { color: var(--lumo-text); }
+.chart-hbars { width: 100%; display: flex; flex-direction: column; gap: 7px; }
+.chart-hbar-row { display: flex; align-items: center; gap: 8px; font-size: 11.5px; }
+.chart-hbar-label { width: 110px; flex: none; text-align: right; color: var(--lumo-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chart-hbar-track { flex: 1; height: 14px; background: #eef0f4; border-radius: 7px; overflow: hidden; }
+.chart-hbar-fill { display: block; height: 100%; border-radius: 7px; }
+.chart-hbar-value { width: 52px; flex: none; font-weight: 600; }

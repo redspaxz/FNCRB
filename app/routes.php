@@ -24,6 +24,7 @@ $router->post('/login',              [AuthController::class, 'login']);
 $router->get('/logout',              [AuthController::class, 'logout']);
 
 $router->get('/dashboard',           [DashboardController::class, 'index']);
+$router->get('/dashboard/analytics', [DashboardController::class, 'analytics']);
 
 $router->get('/borrowers',           [BorrowerController::class, 'index']);
 $router->get('/borrowers/create',    [BorrowerController::class, 'create']);
