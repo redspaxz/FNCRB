@@ -299,3 +299,9 @@ a.col-md-4:hover .stat-card { transform: translateY(-2px); box-shadow: var(--lum
 .chart-hbar-fill:hover { filter: brightness(1.12); }
 .chart-hbar-value { width: 52px; flex: none; font-weight: 700; }
 .chart-hbar-pct { width: 38px; flex: none; color: #9aa1ad; font-size: 10.5px; }
+/* clickable chart elements */
+.chart-click { cursor: pointer; outline: none; }
+.chart-click:hover, .chart-click:focus-visible { filter: brightness(1.15) drop-shadow(0 1px 2px rgba(16,24,40,.25)); }
+.chart-click:focus-visible { outline: 2px solid var(--lumo-primary); outline-offset: 2px; border-radius: 4px; }
+.chart-legend-item.chart-click { cursor: pointer; padding: 2px 6px; border-radius: 6px; border: 1px dashed transparent; }
+.chart-legend-item.chart-click:hover { background: #f2f5f9; border-color: var(--lumo-border); }

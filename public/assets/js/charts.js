@@ -22,6 +22,14 @@
   function fmtFull(n) { return (+n || 0).toLocaleString('en-US'); }
   function pct(part, total) { return total ? Math.round(part / total * 100) + '%' : '0%'; }
   function clean(c) { while (c.firstChild) c.removeChild(c.firstChild); }
+  function clickable(node, href) {
+    if (!href) return;
+    node.addEventListener('click', function () { window.location.href = href; });
+    node.setAttribute('class', (node.getAttribute('class') || '') + ' chart-click');
+    node.setAttribute('tabindex', '0');
+    node.setAttribute('role', 'link');
+    node.addEventListener('keydown', function (e) { if (e.key === 'Enter') window.location.href = href; });
+  }
   function caption(c, html) {
     var d = document.createElement('div'); d.className = 'chart-caption'; d.innerHTML = html; c.appendChild(d);
   }
@@ -60,6 +68,7 @@
         'L', cx + r * Math.cos(a1), cy + r * Math.sin(a1),
         'A', r, r, 0, large, 0, cx + r * Math.cos(a0), cy + r * Math.sin(a0), 'Z'].join(' ');
       var path = el('path', { d: p, fill: d.color || COLORS[i % COLORS.length], class: 'chart-seg' });
+      clickable(path, d.href);
       var title = el('title');
       title.textContent = d.label + ': ' + fmtFull(d.value) + ' (' + pct(d.value, total) + ')';
       path.appendChild(title);
@@ -90,6 +99,7 @@
       if (d.value <= 0) return;
       var item = document.createElement('span');
       item.className = 'chart-legend-item';
+      clickable(item, d.href);
       item.innerHTML = '<i style="background:' + (d.color || COLORS[i % COLORS.length]) + '"></i>'
         + d.label + ' <b>' + (opts.legendValue ? opts.legendValue(d) : fmt(d.value)) + '</b>'
         + ' <em>' + pct(d.value, total) + '</em>';
@@ -127,7 +137,7 @@
         fill: d.color || opts.color || COLORS[i % COLORS.length], class: 'chart-bar'
       });
       var title = el('title'); title.textContent = d.label + ': ' + fmtFull(d.value);
-      rect.appendChild(title); svg.appendChild(rect);
+      rect.appendChild(title); clickable(rect, d.href); svg.appendChild(rect);
       var lbl = el('text', { x: x + bw / 2, y: H - padB + 16, 'text-anchor': 'middle', class: 'chart-tick-strong' });
       lbl.textContent = d.label; svg.appendChild(lbl);
       var val = el('text', { x: x + bw / 2, y: H - padB - Math.max(h, 2) - 6, 'text-anchor': 'middle', class: 'chart-tick-val' });
@@ -147,6 +157,7 @@
     data.forEach(function (d, i) {
       var row = document.createElement('div'); row.className = 'chart-hbar-row';
       row.title = d.label + ': ' + fmtFull(d.value) + ' (' + pct(d.value, total) + ')';
+      clickable(row, d.href);
       var fill = document.createElement('span');
       fill.className = 'chart-hbar-fill';
       fill.style.width = (d.value / max * 100) + '%';
@@ -199,7 +210,7 @@
       pts.forEach(function (p, i) {
         var c = el('circle', { cx: p[0], cy: p[1], r: 3.5, fill: '#fff', stroke: '#1a66d6', 'stroke-width': 2, class: 'chart-pt' });
         var t = el('title'); t.textContent = data[i].label + ': ' + fmtFull(data[i].value);
-        c.appendChild(t); svg.appendChild(c);
+        c.appendChild(t); clickable(c, data[i].href); svg.appendChild(c);
       });
       // end badge: last value
       var last = pts[pts.length - 1];

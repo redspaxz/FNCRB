@@ -72,7 +72,7 @@ $langSwitch .= (str_contains($langSwitch, '?') ? '&' : '?') . 'lang=' . $otherLa
 </div>
 <script src="<?= $base ?>/assets/vendor/bootstrap.bundle.min.js?v=3"></script>
 <script src="<?= $base ?>/assets/js/app.js?v=3"></script>
-<script src="<?= $base ?>/assets/js/charts.js?v=2"></script>
+<script src="<?= $base ?>/assets/js/charts.js?v=3"></script>
 <?= $pageScripts ?? '' ?>
 </body>
 </html>

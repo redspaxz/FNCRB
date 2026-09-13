@@ -25,12 +25,40 @@ final class LoanController
                 FROM loans l
                 JOIN institutions i ON i.id = l.institution_id
                 JOIN borrowers b ON b.id = l.borrower_id";
+        $where = [];
         $params = [];
-        if (!$isRegulator) { $sql .= " WHERE l.institution_id = ?"; $params[] = \App\Core\Auth::institutionId(); }
+        if (!$isRegulator) { $where[] = "l.institution_id = ?"; $params[] = \App\Core\Auth::institutionId(); }
+
+        // whitelisted chart drill-down filters
+        $class = strtoupper(trim((string)($_GET['class'] ?? '')));
+        if (!in_array($class, ['HEALTHY','WATCH','UNCERTAIN','DOUBTFUL','COMPROMISED'], true)) $class = '';
+        else {
+            $where[] = "l.cobac_class = ?";
+            $params[] = $class;
+        }
+        $inst = trim((string)($_GET['inst'] ?? ''));
+        if ($inst !== '' && preg_match('/^[A-Z0-9-]{2,20}$/', $inst)) {
+            $where[] = "i.code = ?";
+            $params[] = $inst;
+        } else $inst = '';
+        $period = trim((string)($_GET['period'] ?? ''));
+        if (preg_match('/^\d{4}-\d{2}$/', $period)) {
+            $where[] = "DATE_FORMAT(l.reported_at, '%Y-%m') = ?";
+            $params[] = $period;
+        } else $period = '';
+        $dpd = trim((string)($_GET['dpd'] ?? ''));
+        $map = [
+            'current' => 'l.days_past_due = 0', '1-30' => 'l.days_past_due BETWEEN 1 AND 30',
+            '31-90' => 'l.days_past_due BETWEEN 31 AND 90', '91-180' => 'l.days_past_due BETWEEN 91 AND 180',
+            '180+' => 'l.days_past_due > 180',
+        ];
+        if (isset($map[$dpd])) $where[] = $map[$dpd]; else $dpd = '';
+
+        if ($where) $sql .= " WHERE " . implode(' AND ', $where);
         $sql .= " ORDER BY l.updated_at DESC LIMIT 200";
         $stmt = Database::pdo()->prepare($sql);
         $stmt->execute($params);
-        View::render('loans/index', ['loans' => $stmt->fetchAll(), 'isRegulator' => $isRegulator]);
+        View::render('loans/index', ['loans' => $stmt->fetchAll(), 'isRegulator' => $isRegulator, 'filters' => compact('class', 'inst', 'period', 'dpd')]);
     }
 
     /** Manual single-loan submission (small Cat-1 institutions without CBS integration). */
@@ -146,12 +174,19 @@ final class IncidentController
                 FROM payment_incidents pi
                 JOIN institutions i ON i.id = pi.institution_id
                 JOIN borrowers b ON b.id = pi.borrower_id";
+        $where = [];
         $params = [];
-        if (!$isRegulator) { $sql .= " WHERE pi.institution_id = ?"; $params[] = \App\Core\Auth::institutionId(); }
+        if (!$isRegulator) { $where[] = "pi.institution_id = ?"; $params[] = \App\Core\Auth::institutionId(); }
+        $type = strtoupper(trim((string)($_GET['type'] ?? '')));
+        if (in_array($type, ['BOUNCED_CHEQUE','DEFAULTED_NOTE','UNAUTHORIZED_OVERDRAFT','FRAUD_INSTRUMENT'], true)) {
+            $where[] = "pi.incident_type = ?";
+            $params[] = $type;
+        }
+        if ($where) $sql .= " WHERE " . implode(' AND ', $where);
         $sql .= " ORDER BY pi.incident_date DESC LIMIT 200";
         $stmt = Database::pdo()->prepare($sql);
         $stmt->execute($params);
-        View::render('incidents/index', ['incidents' => $stmt->fetchAll(), 'isRegulator' => $isRegulator]);
+        View::render('incidents/index', ['incidents' => $stmt->fetchAll(), 'isRegulator' => $isRegulator, 'typeFilter' => $type ?: null]);
     }
 
     public function store(): void

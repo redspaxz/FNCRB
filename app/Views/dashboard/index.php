@@ -67,4 +67,4 @@
   <p class="text-muted" style="font-size:13px;"><?= $t('dash_workflow_body') ?></p>
 </div>
 <?php
-$pageScripts = "<script src=\"" . App\Core\Rbac::baseUrl() . "/assets/js/dashboard-charts.js?v=1\"></script>";
+$pageScripts = "<script src=\"" . App\Core\Rbac::baseUrl() . "/assets/js/dashboard-charts.js?v=3\"></script>";

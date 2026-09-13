@@ -1,5 +1,11 @@
 <?php $e = $data['e']; ?>
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><h3>Payment Incidents <small class="text-muted fs-6">Centrale des Incidents de Paiement (CNEF/CIP)</small></h3><a class="btn btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/reports/incidents.csv">Export CSV</a></div>
+<?php if (!empty($typeFilter)): ?>
+<div class="alert alert-info py-2 d-flex align-items-center gap-2">
+  <b>Filter:</b> <span class="badge bg-secondary"><?= $e($typeFilter) ?></span>
+  <a class="btn btn-sm ms-auto" href="<?= App\Core\Rbac::baseUrl() ?>/incidents">Clear</a>
+</div>
+<?php endif; ?>
 <?php if ($isRegulator): ?><div class="alert alert-info py-2">National view.</div><?php endif; ?>
 <table class="table table-striped table-sm bg-white">
   <thead><tr><th>Institution</th><th>Borrower</th><th>Type</th><th>Instrument</th><th>Amount (XAF)</th><th>Date</th><th>Status</th></tr></thead>
