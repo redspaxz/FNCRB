@@ -47,4 +47,6 @@
   <?php endif; ?>
   </tbody>
 </table>
+<?= $pager ?? '' ?>
+
 <?php $pageScripts = "<script src=\"" . App\Core\Rbac::baseUrl() . "/assets/js/disputes.js?v=1\"></script>"; ?>

@@ -57,11 +57,15 @@ final class DisputeController
         $canWork = Rbac::can('disputes.work');
         $instId = $canWork ? null : \App\Core\Auth::institutionId(); // workers see all
         $status = trim((string)($_GET['status'] ?? '')) ?: null;
+        $page = \App\Core\Pagination::page();
+        $perPage = \App\Core\Pagination::perPage();
+        [$rows, $total] = DisputeService::list($instId, $status, $perPage, \App\Core\Pagination::offset($page, $perPage));
         View::render('disputes/index', [
-            'disputes' => DisputeService::list($instId, $status),
+            'disputes' => $rows,
             'canWork' => $canWork,
             'kpis' => DisputeService::kpis(),
             'statusFilter' => $status,
+            'pager' => \App\Core\Pagination::render('/disputes', $page, $perPage, $total),
         ]);
     }
 

@@ -25,3 +25,5 @@
   <?php endif; ?>
   </tbody>
 </table>
+<?= $pager ?? '' ?>
+

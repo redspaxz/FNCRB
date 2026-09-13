@@ -23,3 +23,5 @@
   <?php endforeach; if (!$incidents): ?><tr><td colspan="7" class="text-muted">No incidents.</td></tr><?php endif; ?>
   </tbody>
 </table>
+<?= $pager ?? '' ?>
+

@@ -24,3 +24,5 @@
   <?php endforeach; ?>
   </tbody>
 </table>
+<?= $pager ?? '' ?>
+

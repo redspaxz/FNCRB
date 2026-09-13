@@ -111,21 +111,31 @@ final class UserController
     {
         Rbac::require('users.manage');
         $pdo = Database::pdo();
+        $page = \App\Core\Pagination::page();
+        $perPage = \App\Core\Pagination::perPage();
+        $offset = \App\Core\Pagination::offset($page, $perPage);
         if ($this->isSuper() && isset($_GET['all'])) {
+            $total = (int)$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
             $stmt = $pdo->query(
                 "SELECT u.*, r.code AS role_code, i.code AS inst_code FROM users u
                  JOIN roles r ON r.id = u.role_id LEFT JOIN institutions i ON i.id = u.institution_id
-                 ORDER BY u.institution_id IS NULL DESC, i.code, u.full_name"
+                 ORDER BY u.institution_id IS NULL DESC, i.code, u.full_name LIMIT $perPage OFFSET $offset"
             );
         } else {
+            $c = $pdo->prepare("SELECT COUNT(*) FROM users WHERE institution_id = ?");
+            $c->execute([Auth::institutionId()]);
+            $total = (int)$c->fetchColumn();
             $stmt = $pdo->prepare(
                 "SELECT u.*, r.code AS role_code, i.code AS inst_code FROM users u
                  JOIN roles r ON r.id = u.role_id LEFT JOIN institutions i ON i.id = u.institution_id
-                 WHERE u.institution_id = ? ORDER BY u.full_name"
+                 WHERE u.institution_id = ? ORDER BY u.full_name LIMIT $perPage OFFSET $offset"
             );
             $stmt->execute([Auth::institutionId()]);
         }
-        View::render('users/index', ['users' => $stmt->fetchAll(), 'isSuper' => $this->isSuper()]);
+        View::render('users/index', [
+            'users' => $stmt->fetchAll(), 'isSuper' => $this->isSuper(),
+            'pager' => \App\Core\Pagination::render('/users', $page, $perPage, $total),
+        ]);
     }
 
     public function create(): void

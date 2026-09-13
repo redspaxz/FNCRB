@@ -31,3 +31,5 @@
   <?php endforeach; if (!$loans): ?><tr><td colspan="11" class="text-muted">No loans.</td></tr><?php endif; ?>
   </tbody>
 </table>
+<?= $pager ?? '' ?>
+

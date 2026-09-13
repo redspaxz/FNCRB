@@ -19,18 +19,25 @@ final class BorrowerController
         Rbac::require('borrower.manage');
         $q = trim((string)($_GET['q'] ?? ''));
         $pdo = Database::pdo();
+        $page = \App\Core\Pagination::page();
+        $perPage = \App\Core\Pagination::perPage();
+        $offset = \App\Core\Pagination::offset($page, $perPage);
         if ($q !== '') {
-            $stmt = $pdo->prepare(
-                "SELECT * FROM borrowers
-                 WHERE dup_of_id IS NULL AND (full_name LIKE ? OR cni_number LIKE ? OR niu LIKE ? OR master_ref LIKE ? OR coop_member_id LIKE ?)
-                 ORDER BY full_name LIMIT 50"
-            );
             $like = "%$q%";
+            $cond = "dup_of_id IS NULL AND (full_name LIKE ? OR cni_number LIKE ? OR niu LIKE ? OR master_ref LIKE ? OR coop_member_id LIKE ?)";
+            $count = $pdo->prepare("SELECT COUNT(*) FROM borrowers WHERE $cond");
+            $count->execute([$like, $like, $like, $like, $like]);
+            $total = (int)$count->fetchColumn();
+            $stmt = $pdo->prepare("SELECT * FROM borrowers WHERE $cond ORDER BY full_name LIMIT $perPage OFFSET $offset");
             $stmt->execute([$like, $like, $like, $like, $like]);
         } else {
-            $stmt = $pdo->query("SELECT * FROM borrowers WHERE dup_of_id IS NULL ORDER BY id DESC LIMIT 50");
+            $total = (int)$pdo->query("SELECT COUNT(*) FROM borrowers WHERE dup_of_id IS NULL")->fetchColumn();
+            $stmt = $pdo->query("SELECT * FROM borrowers WHERE dup_of_id IS NULL ORDER BY id DESC LIMIT $perPage OFFSET $offset");
         }
-        View::render('borrowers/index', ['borrowers' => $stmt->fetchAll(), 'q' => $q]);
+        View::render('borrowers/index', [
+            'borrowers' => $stmt->fetchAll(), 'q' => $q,
+            'pager' => \App\Core\Pagination::render('/borrowers', $page, $perPage, $total),
+        ]);
     }
 
     public function create(): void

@@ -24,6 +24,8 @@
   <?php endforeach; ?>
   </tbody>
 </table>
+<?= $pager ?? '' ?>
+
 <?php
 $csrf = App\Core\Csrf::token();
 $pageScripts = <<<JS

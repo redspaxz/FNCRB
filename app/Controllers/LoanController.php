@@ -55,10 +55,20 @@ final class LoanController
         if (isset($map[$dpd])) $where[] = $map[$dpd]; else $dpd = '';
 
         if ($where) $sql .= " WHERE " . implode(' AND ', $where);
-        $sql .= " ORDER BY l.updated_at DESC LIMIT 200";
+
+        $page = \App\Core\Pagination::page();
+        $perPage = \App\Core\Pagination::perPage();
+        $count = Database::pdo()->prepare("SELECT COUNT(*) FROM ($sql) t");
+        $count->execute($params);
+        $total = (int)$count->fetchColumn();
+
+        $sql .= " ORDER BY l.updated_at DESC LIMIT $perPage OFFSET " . \App\Core\Pagination::offset($page, $perPage);
         $stmt = Database::pdo()->prepare($sql);
         $stmt->execute($params);
-        View::render('loans/index', ['loans' => $stmt->fetchAll(), 'isRegulator' => $isRegulator, 'filters' => compact('class', 'inst', 'period', 'dpd')]);
+        View::render('loans/index', [
+            'loans' => $stmt->fetchAll(), 'isRegulator' => $isRegulator, 'filters' => compact('class', 'inst', 'period', 'dpd'),
+            'pager' => \App\Core\Pagination::render('/loans', $page, $perPage, $total),
+        ]);
     }
 
     /** Manual single-loan submission (small Cat-1 institutions without CBS integration). */
@@ -183,10 +193,20 @@ final class IncidentController
             $params[] = $type;
         }
         if ($where) $sql .= " WHERE " . implode(' AND ', $where);
-        $sql .= " ORDER BY pi.incident_date DESC LIMIT 200";
+
+        $page = \App\Core\Pagination::page();
+        $perPage = \App\Core\Pagination::perPage();
+        $count = Database::pdo()->prepare("SELECT COUNT(*) FROM ($sql) t");
+        $count->execute($params);
+        $total = (int)$count->fetchColumn();
+
+        $sql .= " ORDER BY pi.incident_date DESC LIMIT $perPage OFFSET " . \App\Core\Pagination::offset($page, $perPage);
         $stmt = Database::pdo()->prepare($sql);
         $stmt->execute($params);
-        View::render('incidents/index', ['incidents' => $stmt->fetchAll(), 'isRegulator' => $isRegulator, 'typeFilter' => $type ?: null]);
+        View::render('incidents/index', [
+            'incidents' => $stmt->fetchAll(), 'isRegulator' => $isRegulator, 'typeFilter' => $type ?: null,
+            'pager' => \App\Core\Pagination::render('/incidents', $page, $perPage, $total),
+        ]);
     }
 
     public function store(): void
@@ -253,18 +273,23 @@ final class AuditController
     public function index(): void
     {
         Rbac::require('audit.view');
+        $page = \App\Core\Pagination::page();
+        $perPage = \App\Core\Pagination::perPage(50);
+        $total = (int)Database::pdo()->query("SELECT COUNT(*) FROM audit_logs")->fetchColumn();
+        $offset = \App\Core\Pagination::offset($page, $perPage);
         $stmt = Database::pdo()->query(
             "SELECT a.*, u.full_name, i.code AS inst_code
              FROM audit_logs a
              LEFT JOIN users u ON u.id = a.user_id
              LEFT JOIN institutions i ON i.id = a.institution_id
-             ORDER BY a.id DESC LIMIT 300"
+             ORDER BY a.id DESC LIMIT $perPage OFFSET $offset"
         );
         [$chainOk, $brokenAt] = \App\Core\Audit::verifyChain();
         View::render('audit/index', [
             'logs' => $stmt->fetchAll(),
             'chainOk' => $chainOk,
             'brokenAt' => $brokenAt,
+            'pager' => \App\Core\Pagination::render('/audit', $page, $perPage, $total),
         ]);
     }
 }

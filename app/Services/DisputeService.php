@@ -116,7 +116,8 @@ final class DisputeService
         return true;
     }
 
-    public static function list(?int $institutionId = null, ?string $status = null): array
+    /** @return array{0: array rows, 1: int total} */
+    public static function list(?int $institutionId = null, ?string $status = null, int $limit = 25, int $offset = 0): array
     {
         $sql = "SELECT d.*, b.full_name, b.master_ref,
                        fb.code AS filed_by, ab.code AS against, u.full_name AS resolver
@@ -131,10 +132,14 @@ final class DisputeService
             $where[] = "d.status = ?"; $params[] = $status;
         }
         if ($where) $sql .= " WHERE " . implode(' AND ', $where);
-        $sql .= " ORDER BY FIELD(d.status,'OPEN','UNDER_REVIEW','CORRECTED','REJECTED','WITHDRAWN'), d.sla_due_at ASC";
+        $count = Database::pdo()->prepare("SELECT COUNT(*) FROM ($sql) t");
+        $count->execute($params);
+        $total = (int)$count->fetchColumn();
+
+        $sql .= " ORDER BY FIELD(d.status,'OPEN','UNDER_REVIEW','CORRECTED','REJECTED','WITHDRAWN'), d.sla_due_at ASC LIMIT $limit OFFSET $offset";
         $stmt = Database::pdo()->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll();
+        return [$stmt->fetchAll(), $total];
     }
 
     public static function kpis(): array
