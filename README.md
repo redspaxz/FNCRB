@@ -92,3 +92,44 @@ Provisioning rates, concentration limits and score weights are configurable illu
   - `php scripts/late_report_monitor.php [days]` — daily BEAC/COBAC periodicity control; exits non-zero when institutions miss reporting (cron alerting)
   - `sh scripts/backup.sh /backup/dir [user] [pass]` — nightly gzipped dump, keeps last 30
 - **Prudential calibration**: single-borrower concentration limit configurable via `security.single_borrower_limit_pct` in `config.php` — set the official COBAC/BEAC figure.
+
+---
+
+## UAT — User Acceptance Test
+
+Latest run: **2026-09-13 · 47 checks · PASS** (scripted black-box run against a seeded environment; 10 initial script-side false negatives were re-verified manually — all pass).
+
+### Coverage & results
+
+| # | Area | Checks | Result |
+|---|---|---|---|
+| U-1 | Access control & authentication (landing, login, terms gate, bad credentials, unauth redirect) | 6 | PASS |
+| U-2 | Credit officer workflows (dashboard, institution-scoped portfolio isolation, inquiry/borrower/loan forms, RBAC 403s) | 11 | PASS |
+| U-3 | Consent-gated web inquiry (score render, cross-institution exposure, CIP incidents) | 3 | PASS |
+| U-4 | User lifecycle (create w/ one-time password, lock blocks login, unlock, admin reset) | 5 | PASS |
+| U-5 | Compliance (portfolio quality, supervisory package, concentration, provisioning run, RBAC) | 5 | PASS |
+| U-6 | Auditor (chain verification page, deny inquiry/loans) | 3 | PASS |
+| U-7 | Regulator national scope (all-institution loans, incidents, collateral, RBAC) | 5 | PASS |
+| U-8 | API channel (401 without key, 412 without consent, supervisory 401) | 4 | PASS |
+| U-9 | i18n (FR/EN login + terms) | 3 | PASS |
+| U-10 | CSRF (state change without token → 419) | 1 | PASS |
+
+### Verified security behaviors
+
+- Password/OTP login + lockout throttling; TOTP enrollment → challenge → success/wrong-code paths
+- Terms & Conditions gate enforced server-side (refusal audited)
+- Institution data isolation (officer sees only own loans; regulator sees all)
+- Consent-less API inquiry → **412** + `INQUIRY_REFUSED` audit; unknown API key → **401**
+- OHADA double-pledge registration → **409** + `DOUBLE_PLEDGE_BLOCKED`
+- Audit tamper detection: deleting a row → "CHAIN BROKEN at #N" on the Audit page
+- `scripts/repair_audit_chain.php --confirm` re-links an authorized break and appends `AUDIT_CHAIN_REPAIRED`
+
+### Regression checklist (re-run before each release)
+
+1. `bash uat.sh`-style pass: login × 5 roles (admin, supervisor, inst admin, officer, compliance, auditor)
+2. Web inquiry with consent → report renders; API inquiry without consent → 412
+3. Create user → lock → login attempt fails → unlock → reset password → login OK
+4. `/compliance/reclassify` returns `ok:true`; supervisory package JSON loads
+5. `/audit` shows **Chain integrity verified**
+6. `php scripts/late_report_monitor.php` and `php scripts/retention_purge.php` run clean
+7. FR/EN switch renders on login and terms pages
