@@ -260,3 +260,7 @@ body.login-page {
   .vaadin-content { padding: 0 !important; }
   .card, .table { box-shadow: none !important; }
 }
+
+/* clickable dashboard stat cards */
+a.col-md-4 .stat-card, .stat-card { transition: transform .12s, box-shadow .12s; cursor: pointer; }
+a.col-md-4:hover .stat-card { transform: translateY(-2px); box-shadow: var(--lumo-shadow-md) !important; }
