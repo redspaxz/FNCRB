@@ -31,6 +31,12 @@ $config = [
         // before production (see ConcentrationService / ClassificationService).
         'single_borrower_limit_pct' => 25.0,
     ],
+    // Macro-financial analytics denominators — update from BEAC/INS statistics.
+    'macro' => [
+        'adult_population'   => 14_000_000, // adults (15+) in Cameroon, illustrative
+        'legal_entities'     => 250_000,    // registered companies (RCCM), illustrative
+        'npl_dpd_threshold'  => 90,         // days past due defining an NPL account
+    ],
 ];
 
 $local = __DIR__ . '/config.local.php';

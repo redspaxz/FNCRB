@@ -104,10 +104,51 @@
     <div class="chart-box" data-chart="sys-inventory"></div></div></div>
 </div>
 
+<!-- ============ 5. MACRO-FINANCIAL & CREDIT MARKET (executive, regulator only) ============ -->
+<?php if (!empty($macro)): ?>
+<div class="card p-4 mt-3" style="border-left:4px solid #1a66d6">
+  <div class="titled">5 · Macro-Financial &amp; Credit Market Analytics — strategic executive view (anonymized, system-wide)</div>
+
+  <div class="row g-3">
+    <div class="col-lg-3"><div class="card p-3 h-100 text-center <?= ($macro['npl']['national']['npl_ratio_accounts_pct'] ?? 0) > 10 ? 'border-danger' : '' ?>">
+      <small class="text-muted">NPL indicator (<?= (int)($macro['npl']['national']['npl_accounts'] ?? 0) ?>/<?= (int)($macro['npl']['national']['total_accounts'] ?? 0) ?> accounts ≥90 DPD)</small>
+      <h2><?= $e($macro['npl']['national']['npl_ratio_accounts_pct'] ?? '—') ?>%</h2>
+      <small class="text-muted">by value: <?= $e($macro['npl']['national']['npl_ratio_value_pct'] ?? '—') ?>%</small></div></div>
+    <div class="col-lg-3"><div class="card p-3 h-100 text-center">
+      <small class="text-muted">Credit coverage — individuals</small><h2><?= $e($macro['coverage']['individual_coverage_pct']) ?>%</h2>
+      <small class="text-muted"><?= number_format($macro['coverage']['individuals_in_registry']) ?> / <?= number_format($macro['coverage']['adult_population']) ?> adults</small>
+      <hr class="my-2"><small class="text-muted">Legal entities: <b><?= $e($macro['coverage']['corporate_coverage_pct']) ?>%</b> (<?= number_format($macro['coverage']['corporates_in_registry']) ?>)</small></div></div>
+    <div class="col-lg-3"><div class="card p-3 h-100 text-center">
+      <small class="text-muted">Credit growth (<?= $e($macro['credit_growth']['last_period'] ?? '—') ?>)</small>
+      <h2><?= $e($macro['credit_growth']['mom_growth_pct'] ?? '—') ?>% <small class="text-muted fs-6">MoM</small></h2>
+      <small class="text-muted">YoY: <?= $e(json_encode($macro['credit_growth']['yoy_growth_pct'])) ?></small></div></div>
+    <div class="col-lg-3"><div class="card p-3 h-100 text-center <?= ($macro['indebtedness']['over_indebted_pct'] ?? 0) > 25 ? 'border-danger' : '' ?>">
+      <small class="text-muted">Indebtedness index</small>
+      <h2><?= $e($macro['indebtedness']['avg_accounts_per_borrower'] ?? '—') ?></h2>
+      <small class="text-muted">avg accounts/borrower · avg debt <?= $e(number_format((int)($macro['indebtedness']['avg_outstanding_xaf'] ?? 0))) ?> XAF</small>
+      <hr class="my-2"><small class="text-muted">over-indebted: <b><?= $e($macro['indebtedness']['over_indebted_pct'] ?? '—') ?>%</b> · multi-institution <?= $e($macro['indebtedness']['multi_institution_pct'] ?? '—') ?>%</small></div></div>
+
+    <div class="col-lg-6"><div class="card p-3 h-100">
+      <div class="titled">New credit facilities per month (all sectors)</div>
+      <div class="chart-box" data-chart="macro-growth"></div></div></div>
+    <div class="col-lg-6"><div class="card p-3 h-100">
+      <div class="titled">NPL ratio by sector (accounts ≥90 DPD, %)</div>
+      <div class="chart-box" data-chart="macro-npl-sector"></div></div></div>
+    <div class="col-lg-6"><div class="card p-3 h-100">
+      <div class="titled">Active accounts per borrower — distribution</div>
+      <div class="chart-box" data-chart="macro-indebted"></div></div></div>
+    <div class="col-lg-6"><div class="card p-3 h-100">
+      <div class="titled">MoM credit growth by sector (%)</div>
+      <div class="chart-box" data-chart="macro-growth-sector"></div></div></div>
+  </div>
+  <div class="chart-caption">Population/entity denominators are configurable in <code>config.php → macro</code> — calibrate with BEAC/INS statistics.</div>
+</div>
+<?php endif; ?>
+
 <?php
-$q = json_encode($quality); $o = json_encode($ops); $h = json_encode($health); $dsp = json_encode($disputes);
+$q = json_encode($quality); $o = json_encode($ops); $h = json_encode($health); $dsp = json_encode($disputes); $mc = json_encode($macro);
 $pageScripts = <<<HTML
-<script>window.FNCRB_ANALYTICS = {quality: $q, ops: $o, health: $h, disputes: $dsp};</script>
-<script src="{$base}/assets/js/analytics-charts.js?v=1"></script>
+<script>window.FNCRB_ANALYTICS = {quality: $q, ops: $o, health: $h, disputes: $dsp, macro: $mc};</script>
+<script src="{$base}/assets/js/analytics-charts.js?v=2"></script>
 HTML;
 ?>

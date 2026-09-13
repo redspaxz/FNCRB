@@ -49,3 +49,37 @@
     return { label: k.replace('_', ' '), value: inv[k], color: '#5e6ad2' };
   }), { raw: true, captionHtml: 'Registry data inventory (row counts).' });
 })();
+
+// 5. macro-financial executive view (regulator only)
+(function () {
+'use strict';
+var C = window.FNCRBCharts;
+var A = window.FNCRB_ANALYTICS;
+if (!C || !A) return;
+function box(sel) { return document.querySelector('[data-chart="' + sel + '"]'); }
+
+var M = A.macro;
+if (M) {
+  var growth = (M.credit_growth || {}).monthly_series || {};
+  if (box('macro-growth')) C.line(box('macro-growth'), Object.keys(growth).map(function (k) {
+    return { label: k.slice(2), value: growth[k].loans };
+  }), { captionHtml: 'Newly opened credit facilities per month — national credit growth cycle.' });
+
+  var nplSec = (M.npl || {}).by_sector || {};
+  if (box('macro-npl-sector')) C.vbars(box('macro-npl-sector'), Object.keys(nplSec).map(function (k) {
+    return { label: k.charAt(0) + k.slice(1).toLowerCase(), value: nplSec[k].npl_ratio_accounts_pct || 0, color: '#e04f44' };
+  }), { captionHtml: 'Sectoral NPL indicator — share of active accounts ≥90 days past due.' });
+
+  var dist = (M.indebtedness || {}).accounts_distribution || {};
+  if (box('macro-indebted')) C.vbars(box('macro-indebted'), [
+    { label: '1 account', value: dist['1'] || 0, color: '#2eaa6b' },
+    { label: '2 accounts', value: dist['2'] || 0, color: '#e0a63a' },
+    { label: '3+ accounts', value: dist['3+'] || 0, color: '#e04f44' }
+  ], { captionHtml: 'Borrowers by number of active credit accounts — over-indebtedness watch (3+).' });
+
+  var gs = (M.credit_growth || {}).by_sector_mom_pct || {};
+  if (box('macro-growth-sector')) C.hbars(box('macro-growth-sector'), Object.keys(gs).map(function (k) {
+    return { label: k, value: Math.abs(gs[k] || 0), color: (gs[k] || 0) >= 0 ? '#2eaa6b' : '#e04f44' };
+  }), { captionHtml: 'Green = growth, red = contraction (absolute % change vs previous month).' });
+}
+})();

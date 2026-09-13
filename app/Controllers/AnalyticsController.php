@@ -9,6 +9,7 @@ use App\Core\Rbac;
 use App\Core\Response;
 use App\Core\View;
 use App\Services\DataQualityService;
+use App\Services\MacroAnalyticsService;
 use App\Services\DisputeService;
 use App\Services\InquiryMetricsService;
 use App\Services\SystemHealthService;
@@ -28,6 +29,7 @@ final class AnalyticsController
             'ops' => InquiryMetricsService::kpis($instId),
             'health' => SystemHealthService::kpis(),
             'disputes' => DisputeService::kpis(),
+            'macro' => $instId === null ? MacroAnalyticsService::kpis() : null,
             'isRegulator' => $instId === null,
         ]);
     }
@@ -42,6 +44,7 @@ final class AnalyticsController
             'bureau_ops' => InquiryMetricsService::kpis($instId),
             'system_health' => SystemHealthService::kpis(),
             'disputes' => DisputeService::kpis(),
+            'macro' => \App\Core\Auth::institutionId() === null ? MacroAnalyticsService::kpis() : null,
         ]);
     }
 }

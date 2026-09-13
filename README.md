@@ -194,3 +194,12 @@ Apply `database/upgrade_v3.sql` (ingestion_log, disputes, data_corrections + new
 **4 · Consumer Rights & Dispute Management** (`/disputes`) — statutory workflow per Law 2010/012: institutions **file disputes** on behalf of consumers (types: inaccurate balance, wrong classification, not-my-loan, duplicate identity, stale data) with a **30-day SLA**; bureau staff/regulators **review → correct or reject**. Corrections apply whitelisted field changes to `loans`/`borrowers` with an old/new **evidence trail** (`data_corrections`) and full audit logging. Illegal status transitions are rejected server-side; over-SLA cases are highlighted.
 
 All four sections render on `/analytics` (charts + KPI tiles) and as JSON at `/analytics.json`. RBAC: officers/compliance file disputes; regulators/super-admin work them; analytics visible to admins/compliance/regulators.
+
+## 5 · Macro-Financial & Credit Market Analytics (strategic executive view)
+
+Regulator/SUPER_ADMIN-only section on `/analytics` (institution users get `macro: null` in JSON and no UI section). Aggregated, anonymized system-wide intelligence:
+
+- **NPL indicator** — national and sectoral share of active accounts ≥90 days past due (count-based and value-based ratios).
+- **Credit coverage ratio** — individuals in registry vs adult population, legal entities vs registered companies (denominators configurable in `config.php → macro`; calibrate with BEAC/INS statistics).
+- **Credit growth rate** — new credit facilities per month (25-month series), MoM and YoY growth, plus MoM growth by sector (green growth / red contraction).
+- **Indebtedness index** — average active accounts per borrower, average debt burden (XAF), accounts distribution (1 / 2 / 3+), share of multi-institution borrowers, and over-indebtedness watch (3+ accounts or institutions).
