@@ -7,7 +7,7 @@ $langSwitch = '?lang=' . (App\Core\Lang::lang() === 'fr' ? 'en' : 'fr');
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FNCRB — <?= $t('app_name') ?></title>
 <link href="<?= $base ?>/assets/vendor/bootstrap.min.css?v=4" rel="stylesheet">
-<link href="<?= $base ?>/assets/css/lumo.css?v=7" rel="stylesheet">
+<link href="<?= $base ?>/assets/css/lumo.css?v=8" rel="stylesheet">
 </head>
 <body>
 <div class="hero">

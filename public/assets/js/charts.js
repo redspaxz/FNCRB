@@ -133,7 +133,7 @@
       var x = padL + i * slot + (slot - bw) / 2;
       var h = (H - padT - padB) * d.value / nice;
       var rect = el('rect', {
-        x: x, y: H - padB - Math.max(h, 2), width: bw, height: Math.max(h, 2), rx: 4,
+        x: x, y: H - padB - Math.max(h, 2), width: bw, height: Math.max(h, 2), rx: 0,
         fill: d.color || opts.color || COLORS[i % COLORS.length], class: 'chart-bar'
       });
       var title = el('title'); title.textContent = d.label + ': ' + fmtFull(d.value);
@@ -205,7 +205,7 @@
       }
       var area = dPath + ' L' + pts[pts.length - 1][0].toFixed(1) + ',' + (H - padB) + ' L' + pts[0][0].toFixed(1) + ',' + (H - padB) + ' Z';
       svg.appendChild(el('path', { d: area, fill: 'url(#fncrb-area-grad)' }));
-      svg.appendChild(el('path', { d: dPath, fill: 'none', stroke: '#1a66d6', 'stroke-width': 2.5, 'stroke-linecap': 'round' }));
+      svg.appendChild(el('path', { d: dPath, fill: 'none', stroke: '#1a66d6', 'stroke-width': 2.5, 'stroke-linecap': 'butt' }));
 
       pts.forEach(function (p, i) {
         var c = el('circle', { cx: p[0], cy: p[1], r: 3.5, fill: '#fff', stroke: '#1a66d6', 'stroke-width': 2, class: 'chart-pt' });
@@ -216,7 +216,7 @@
       var last = pts[pts.length - 1];
       var bx = Math.min(last[0] + 6, W - 34);
       var badge = el('g', { class: 'chart-badge' });
-      badge.appendChild(el('rect', { x: bx - 4, y: Math.max(last[1] - 22, 2), width: 42, height: 17, rx: 8 }));
+      badge.appendChild(el('rect', { x: bx - 4, y: Math.max(last[1] - 22, 2), width: 42, height: 17, rx: 0 }));
       var bt = el('text', { x: bx + 17, y: Math.max(last[1] - 10, 13), 'text-anchor': 'middle' });
       bt.textContent = fmt(data[data.length - 1].value);
       badge.appendChild(bt);

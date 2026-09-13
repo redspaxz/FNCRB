@@ -13,7 +13,7 @@ $langSwitch .= (str_contains($langSwitch, '?') ? '&' : '?') . 'lang=' . $otherLa
 <meta name="csrf-token" content="<?= App\Core\Csrf::token() ?>">
 <meta name="base-url" content="<?= $base ?>">
 <link href="<?= $base ?>/assets/vendor/bootstrap.min.css?v=4" rel="stylesheet">
-<link href="<?= $base ?>/assets/css/lumo.css?v=7" rel="stylesheet">
+<link href="<?= $base ?>/assets/css/lumo.css?v=8" rel="stylesheet">
 </head>
 <body>
 <div class="vaadin-app">
@@ -74,7 +74,7 @@ $langSwitch .= (str_contains($langSwitch, '?') ? '&' : '?') . 'lang=' . $otherLa
 </div>
 <script src="<?= $base ?>/assets/vendor/bootstrap.bundle.min.js?v=3"></script>
 <script src="<?= $base ?>/assets/js/app.js?v=3"></script>
-<script src="<?= $base ?>/assets/js/charts.js?v=3"></script>
+<script src="<?= $base ?>/assets/js/charts.js?v=4"></script>
 <?= $pageScripts ?? '' ?>
 </body>
 </html>
