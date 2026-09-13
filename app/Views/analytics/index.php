@@ -149,6 +149,6 @@
 $q = json_encode($quality); $o = json_encode($ops); $h = json_encode($health); $dsp = json_encode($disputes); $mc = json_encode($macro);
 $pageScripts = <<<HTML
 <script>window.FNCRB_ANALYTICS = {quality: $q, ops: $o, health: $h, disputes: $dsp, macro: $mc};</script>
-<script src="{$base}/assets/js/analytics-charts.js?v=2"></script>
+<script src="{$base}/assets/js/analytics-charts.js?v=3"></script>
 HTML;
 ?>
