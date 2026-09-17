@@ -40,16 +40,35 @@ final class Pagination
     public static function render(string $path, int $page, int $perPage, int $total): string
     {
         $pages = self::pageCount($total, $perPage);
-        if ($pages <= 1 && $total <= $perPage) {
-            return $total ? '<div class="chart-caption">Showing all ' . $total . ' record(s)</div>'
-                          : '<div class="chart-caption">No records</div>';
-        }
-
-        $q = $_GET;
-        $mk = function (int $p) use ($path, $q) {
-            $q['page'] = $p;
-            return Rbac::baseUrl() . $path . '?' . http_build_query($q);
+        $q0 = $_GET;
+        unset($q0['page']);
+        $mk = function (int $p) use ($path, $q0) {
+            $q0['page'] = $p;
+            return Rbac::baseUrl() . $path . '?' . http_build_query($q0);
         };
+
+        // per-page selector (GET form preserves current filters; auto-submits via app.js)
+        $options = '';
+        foreach ([10, 25, 50, 100, 200] as $n) {
+            $sel = $n === $perPage ? ' selected' : '';
+            $options .= "<option value=\"$n\"$sel>$n</option>";
+        }
+        $hidden = '';
+        foreach ($q0 as $k => $v) {
+            if ($k === 'per_page') continue;
+            $hidden .= '<input type="hidden" name="' . htmlspecialchars((string)$k) . '" value="' . htmlspecialchars((string)$v) . '">';
+        }
+        $selector = '<form method="get" action="' . Rbac::baseUrl() . $path . '" class="pager-select-form d-inline-flex align-items-center gap-2 ms-3">'
+            . $hidden
+            . '<label class="mb-0" for="per-page-sel" style="font-size:11.5px;">Rows</label>'
+            . '<select name="per_page" class="form-select form-select-sm pager-select">' . $options . '</select>'
+            . '<noscript><button class="btn btn-sm">Go</button></noscript></form>';
+
+        if ($pages <= 1 && $total <= $perPage) {
+            return ($total ? '<div class="chart-caption">Showing all ' . $total . ' record(s)</div>'
+                          : '<div class="chart-caption">No records</div>')
+                 . '<div class="d-flex justify-content-center mt-1">' . $selector . '</div>';
+        }
 
         $from = ($page - 1) * $perPage + 1;
         $to = min($page * $perPage, $total);
@@ -74,7 +93,7 @@ final class Pagination
 
         $html .= '<li class="page-item' . ($page >= $pages ? ' disabled' : '') . '">'
                . '<a class="page-link" href="' . ($page >= $pages ? '#' : $mk($page + 1)) . '">&raquo;</a></li>';
-        $html .= '</ul>';
+        $html .= '</ul><div class="d-flex align-items-center flex-wrap">' . $selector . '</div>';
         $html .= '<div class="chart-caption">Showing ' . $from . '–' . $to . ' of ' . $total
                . ' record(s) · ' . $perPage . ' per page</div></nav>';
         return $html;

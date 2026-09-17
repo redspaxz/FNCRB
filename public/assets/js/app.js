@@ -44,4 +44,10 @@
     terms.addEventListener('change', sync);
     sync();
   }
+  // pagination: auto-submit the rows-per-page selector
+  document.querySelectorAll('.pager-select').forEach(function (sel) {
+    sel.addEventListener('change', function () {
+      this.form.submit();
+    });
+  });
 })();

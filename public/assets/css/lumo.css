@@ -40,9 +40,9 @@ html, body {
   font-weight: 700; font-size: 15px; color: var(--lumo-text); text-decoration: none;
 }
 .vaadin-appbar .brand .logo {
-  padding: 0 9px; height: 28px; border-radius: 0; width: auto;
+  padding: 0 12px; height: 34px; width: auto;
   background: linear-gradient(135deg, var(--lumo-primary), #37a3f5);
-  color: #fff; font-size: 11px; font-weight: 800; letter-spacing: .03em;
+  color: #fff; font-size: 14.5px; font-weight: 800; letter-spacing: .05em;
   display: inline-flex; align-items: center; justify-content: center;
 }
 .vaadin-appbar .app-tabs { display: flex; gap: 4px; margin-left: 16px; height: 100%; }
@@ -305,3 +305,9 @@ a.col-md-4:hover .stat-card { transform: translateY(-2px); box-shadow: var(--lum
 .chart-click:focus-visible { outline: 2px solid var(--lumo-primary); outline-offset: 2px; border-radius: 0; }
 .chart-legend-item.chart-click { cursor: pointer; padding: 2px 6px; border-radius: 0; border: 1px dashed transparent; }
 .chart-legend-item.chart-click:hover { background: #f2f5f9; border-color: var(--lumo-border); }
+
+/* pagination rows-per-page selector */
+nav[aria-label="Table pagination"] { display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
+nav[aria-label="Table pagination"] .pagination { margin: 0; }
+.pager-select { width: auto !important; min-width: 76px; padding: 3px 28px 3px 8px !important; font-size: 12.5px !important; }
+.pager-select-form label { font-size: 11.5px; }
