@@ -59,7 +59,17 @@ final class SystemHealthService
         )->fetchAll();
         $auditPerDay = array_column($rows, 'n', 'd');
 
+        // configuration posture (surfaced to bureau administrators)
+        $warnings = [];
+        if (\App\Core\Crypto::isDefaultSecret()) $warnings[] = 'app.secret is the default placeholder — set a 32+ character random secret in config.local.php.';
+        if (\App\Core\Config::get('app.env') !== 'production') $warnings[] = 'app.env is not "production" — secure cookies and error masking depend on it.';
+        $cp = $pdo->query("SELECT verified_at FROM audit_checkpoints WHERE id = 1")->fetchColumn();
+        if (!$cp || strtotime((string)$cp) < time() - 2 * 86400) $warnings[] = 'Audit chain not fully re-verified in 48 h — schedule scripts/verify_audit_chain.php nightly.';
+        $openConflicts = (int)$pdo->query("SELECT COUNT(*) FROM identity_conflicts WHERE status='OPEN'")->fetchColumn();
+
         return [
+            'warnings' => $warnings,
+            'open_identity_conflicts' => $openConflicts,
             'api_requests_24h' => (int)$api24h,
             'api_rejections_24h' => $rejected24h,
             'api_per_hour' => $apiPerHour,

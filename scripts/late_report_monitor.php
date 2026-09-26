@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * Usage: php scripts/late_report_monitor.php [max_age_days]
  */
-require dirname(__DIR__) . '/app/bootstrap.php';
+require __DIR__ . '/_cli.php';
 
 $maxAge = (int)($argv[1] ?? 35);
 $pdo = \App\Core\Database::pdo();

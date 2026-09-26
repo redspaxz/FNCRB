@@ -7,7 +7,7 @@ $langSwitch = '?lang=' . (App\Core\Lang::lang() === 'fr' ? 'en' : 'fr');
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= $t('sign_in') ?> — FNCRB</title>
 <link href="<?= $base ?>/assets/vendor/bootstrap.min.css?v=4" rel="stylesheet">
-<link href="<?= $base ?>/assets/css/lumo.css?v=8" rel="stylesheet">
+<link href="<?= $base ?>/assets/css/lumo.css?v=9" rel="stylesheet">
 </head>
 <body class="login-page">
 <div class="login-card">
@@ -17,6 +17,7 @@ $langSwitch = '?lang=' . (App\Core\Lang::lang() === 'fr' ? 'en' : 'fr');
     <div style="margin-top:6px;"><a href="<?= $base ?>/login<?= $langSwitch ?>" style="color:#fff;font-size:11.5px;opacity:.9;text-decoration:underline;"><?= App\Core\Lang::lang() === 'fr' ? 'English' : 'Français' ?></a></div>
   </div>
   <div class="login-body">
+    <?php if (!empty($notice)): ?><div class="alert alert-warning"><?= $e($notice) ?></div><?php endif; ?>
     <?php if (!empty($error)): ?><div class="alert alert-danger"><?= $e($error) ?></div><?php endif; ?>
     <form method="post" action="<?= $base ?>/login">
       <?= App\Core\Csrf::field() ?>
@@ -26,12 +27,12 @@ $langSwitch = '?lang=' . (App\Core\Lang::lang() === 'fr' ? 'en' : 'fr');
       </div>
       <div class="mb-3">
         <label class="form-label"><?= $t('password') ?></label>
-        <input type="password" name="password" class="form-control" required<?= empty($need_otp) ? ' autofocus' : '' ?>>
+        <input type="password" name="password" class="form-control" autocomplete="current-password" required<?= empty($need_otp) ? ' autofocus' : '' ?>>
       </div>
       <?php if (!empty($need_otp)): ?>
       <div class="mb-3">
         <label class="form-label">One-time code (2FA)</label>
-        <input type="text" name="otp" class="form-control" inputmode="numeric" pattern="\d{6}" maxlength="6" placeholder="000000" autofocus required>
+        <input type="text" name="otp" class="form-control" inputmode="numeric" autocomplete="one-time-code" pattern="\d{6}" maxlength="6" placeholder="000000" autofocus required>
         <div class="form-text">Enter the 6-digit code from your authenticator app.</div>
       </div>
       <?php endif; ?>
@@ -46,6 +47,6 @@ $langSwitch = '?lang=' . (App\Core\Lang::lang() === 'fr' ? 'en' : 'fr');
     <p class="text-muted small mt-2 mb-0 login-note"><?= $t('login_note') ?></p>
   </div>
 </div>
-<script src="<?= $base ?>/assets/js/app.js?v=3"></script>
+<script src="<?= $base ?>/assets/js/app.js?v=4"></script>
 </body>
 </html>

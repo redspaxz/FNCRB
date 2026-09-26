@@ -22,6 +22,13 @@ final class ApiGuard
 
     /** @var array|null authenticated institution row */
     private static ?array $inst = null;
+    private static string $rawBody = '';
+
+    /** Raw request body as read (and signed) during authentication. */
+    public static function body(): string
+    {
+        return self::$rawBody;
+    }
 
     /** Validate everything; on failure emit a typed error and exit. */
     public static function authenticate(): array
@@ -30,7 +37,12 @@ final class ApiGuard
         $ts  = (string)($_SERVER['HTTP_X_FNCRB_TIMESTAMP'] ?? '');
         $nonce = (string)($_SERVER['HTTP_X_FNCRB_NONCE'] ?? '');
         $sig  = (string)($_SERVER['HTTP_X_FNCRB_SIGNATURE'] ?? '');
-        $body = (string)file_get_contents('php://input');
+        $maxBytes = (int)Config::get('api.max_body_bytes', 10485760);
+        if ((int)($_SERVER['CONTENT_LENGTH'] ?? 0) > $maxBytes)
+            self::fail('PAYLOAD_TOO_LARGE', "Request body exceeds $maxBytes bytes.", 413);
+        $body = (string)file_get_contents('php://input', false, null, 0, $maxBytes + 1);
+        if (strlen($body) > $maxBytes) self::fail('PAYLOAD_TOO_LARGE', "Request body exceeds $maxBytes bytes.", 413);
+        self::$rawBody = $body;
 
         if ($key === '')      self::fail('AUTH_MISSING_KEY', 'X-FNCRB-Key header is required.', 401);
         if ($ts === '' || !ctype_digit($ts) || abs(time() - (int)$ts) > self::CLOCK_SKEW_SECONDS)
@@ -44,6 +56,7 @@ final class ApiGuard
         $stmt->execute([hash('sha256', $key)]);
         $inst = $stmt->fetch();
         if (!$inst) self::fail('AUTH_INVALID_KEY', 'Unknown, inactive or revoked API key.', 401);
+        if ($inst['category'] === 'REGULATOR') self::fail('AUTH_INVALID_KEY', 'Regulator institutions have no machine channel.', 403);
 
         // HMAC verification (constant-time)
         $expected = hash_hmac('sha256', $ts . '.' . $nonce . '.' . $body, $key);
@@ -54,7 +67,7 @@ final class ApiGuard
         if (!empty($inst['ip_allowlist'])) {
             $ip = $_SERVER['REMOTE_ADDR'] ?? '';
             $allowed = array_filter(array_map('trim', preg_split('/[\s,;]+/', (string)$inst['ip_allowlist'])));
-            if ($ip !== '' && !in_array($ip, $allowed, true))
+            if ($ip === '' || !in_array($ip, $allowed, true))
                 self::fail('AUTH_IP_BLOCKED', "Client IP not in institution allow-list.", 403);
         }
 

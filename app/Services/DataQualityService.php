@@ -40,7 +40,7 @@ final class DataQualityService
                     COUNT(*) total,
                     SUM(CASE WHEN monthly_payment_xaf > 0 AND instalments_total > 0
                               AND interest_rate_pct > 0 AND maturity_date IS NOT NULL THEN 1 ELSE 0 END) complete
-             FROM loans WHERE status='ACTIVE' GROUP BY institution_id"
+             FROM loans WHERE status IN " . ClassificationService::OPEN_SQL . " GROUP BY institution_id"
         );
         foreach ($stmt->fetchAll() as $r) $comp[(int)$r['institution_id']] = [(int)$r['complete'], (int)$r['total']];
 
@@ -53,11 +53,11 @@ final class DataQualityService
         );
         foreach ($stmt->fetchAll() as $r) $fresh[(int)$r['institution_id']] = $r;
 
-        // duplicate-identity signals (reconciliation queue)
-        $dups = [];
-        $stmt = $pdo->query(
-            "SELECT COUNT(*) c FROM borrowers WHERE dup_of_id IS NOT NULL"
+        // identity conflicts awaiting bureau review (reconciliation queue)
+        $stmt = $pdo->prepare(
+            "SELECT COUNT(*) FROM identity_conflicts WHERE status = 'OPEN'" . ($institutionId ? " AND institution_id = ?" : "")
         );
+        $stmt->execute($institutionId ? [$institutionId] : []);
         $dupTotal = (int)$stmt->fetchColumn();
 
         $out = [];
@@ -106,7 +106,7 @@ final class DataQualityService
     public static function logSubmission(int $institutionId, string $source, int $submitted, int $accepted, int $rejected): void
     {
         Database::pdo()->prepare(
-            "INSERT INTO ingestion_log (institution_id, source, submitted_xaf, accepted, rejected) VALUES (?,?,?,?,?)"
+            "INSERT INTO ingestion_log (institution_id, source, submitted, accepted, rejected) VALUES (?,?,?,?,?)"
         )->execute([$institutionId, $source, $submitted, $accepted, $rejected]);
     }
 }

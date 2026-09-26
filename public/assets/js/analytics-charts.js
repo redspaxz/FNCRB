@@ -1,9 +1,14 @@
-// Four-pillar analytics charts (renders from window.FNCRB_ANALYTICS)
+// Four-pillar analytics charts (renders from the #fncrb-analytics JSON block — no inline script, CSP-safe)
+(function () {
+  var node = document.getElementById('fncrb-analytics');
+  try { window.FNCRB_ANALYTICS = node ? JSON.parse(node.textContent) : null; } catch (e) { window.FNCRB_ANALYTICS = null; }
+})();
 (function () {
   'use strict';
   var C = window.FNCRBCharts;
   var A = window.FNCRB_ANALYTICS;
   if (!C || !A) return;
+  A.health = A.health || {};
 
   function box(sel) { return document.querySelector('[data-chart="' + sel + '"]'); }
   var XAF = ' XAF';
@@ -68,7 +73,7 @@ if (M) {
   var nplSec = (M.npl || {}).by_sector || {};
   if (box('macro-npl-sector')) C.vbars(box('macro-npl-sector'), Object.keys(nplSec).map(function (k) {
     return { label: k.charAt(0) + k.slice(1).toLowerCase(), value: nplSec[k].npl_ratio_accounts_pct || 0, color: '#e04f44' };
-  }), { captionHtml: 'Sectoral NPL indicator — share of active accounts ≥90 days past due.' });
+  }), { captionHtml: 'Sectoral NPL indicator — share of open accounts more than 90 days past due.' });
 
   var dist = (M.indebtedness || {}).accounts_distribution || {};
   if (box('macro-indebted')) C.vbars(box('macro-indebted'), [

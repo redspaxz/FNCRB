@@ -1,7 +1,10 @@
+-- cPanel/phpMyAdmin variant: GENERATED from seed.sql (no CREATE DATABASE / USE).
+-- Select your database first, then import. Do not edit by hand — edit seed.sql and regenerate.
 -- =====================================================================
 -- FNCRB seed: roles, permissions, institutions, demo users & data
 -- Default passwords are for development ONLY — rotate before production.
 -- =====================================================================
+SET NAMES utf8mb4;
 
 -- Roles
 INSERT INTO roles (code, name, description) VALUES
@@ -30,16 +33,20 @@ INSERT INTO permissions (code, description) VALUES
 ('compliance.provisioning','Run classification & provisioning'),
 ('audit.view','View tamper-proof audit trail'),
 ('users.manage','Manage institution users'),
-('institutions.manage','Manage institutions (super admin)');
+('institutions.manage','Manage institutions (super admin)'),
+('disputes.file','File consumer credit disputes on behalf of borrowers'),
+('disputes.work','Review, correct or reject disputes; consult consumer files (bureau/regulator)'),
+('analytics.view','View data quality, bureau ops and system performance analytics'),
+('borrower.reconcile','Review identity conflicts and merge duplicate borrowers (bureau)');
 
 -- Role-permission matrix
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r JOIN permissions p
 WHERE (r.code='SUPER_ADMIN')
-   OR (r.code='REGULATOR'   AND p.code IN ('inquiry.view.all','loan.view.all','incident.view.all','compliance.reports','audit.view'))
-   OR (r.code='INST_ADMIN'  AND p.code IN ('inquiry.view.own','loan.view.own','loan.report','borrower.manage','collateral.manage','collateral.view.own','incident.report','incident.view.own','compliance.reports','compliance.provisioning','users.manage','inquiry.perform'))
-   OR (r.code='COMPLIANCE'  AND p.code IN ('loan.view.own','collateral.view.own','incident.view.own','compliance.reports','compliance.provisioning'))
-   OR (r.code='CREDIT_OFFICER' AND p.code IN ('inquiry.perform','inquiry.view.own','loan.report','loan.view.own','borrower.manage','collateral.manage','incident.report'))
+   OR (r.code='REGULATOR'   AND p.code IN ('inquiry.view.all','loan.view.all','incident.view.all','compliance.reports','audit.view','disputes.work','analytics.view'))
+   OR (r.code='INST_ADMIN'  AND p.code IN ('inquiry.view.own','loan.view.own','loan.report','borrower.manage','collateral.manage','collateral.view.own','incident.report','incident.view.own','compliance.reports','compliance.provisioning','users.manage','inquiry.perform','audit.view','disputes.file','analytics.view'))
+   OR (r.code='COMPLIANCE'  AND p.code IN ('loan.view.own','collateral.view.own','incident.view.own','compliance.reports','compliance.provisioning','inquiry.view.own','disputes.file','analytics.view'))
+   OR (r.code='CREDIT_OFFICER' AND p.code IN ('inquiry.perform','inquiry.view.own','loan.report','loan.view.own','borrower.manage','collateral.manage','collateral.view.own','incident.report','incident.view.own','disputes.file'))
    OR (r.code='AUDITOR'     AND p.code IN ('audit.view','inquiry.view.own'));
 
 -- Institutions
@@ -94,6 +101,13 @@ INSERT INTO payment_incidents (institution_id, borrower_id, incident_type, instr
 ((SELECT id FROM institutions WHERE code='AFRIBANK-CM'),3,'DEFAULTED_NOTE','NOTE-5521',8000000,'2026-05-10');
 
 -- Consents (active, needed for demo inquiries)
-INSERT INTO consents (borrower_id, institution_id, consent_type, consent_ref, scope, granted_at, expires_at) VALUES
-(1,(SELECT id FROM institutions WHERE code='MICROBANK-PL'),'DIGITAL','CS-2026-0912-A','FULL_REPORT','2026-09-01','2026-12-01'),
-(3,(SELECT id FROM institutions WHERE code='MICROBANK-PL'),'PHYSICAL','CS-2026-0877-B','CREDIT_CHECK','2026-08-20','2026-11-20');
+INSERT INTO consents (borrower_id, institution_id, consent_type, consent_ref, scope, signed_at, granted_at, expires_at, evidence_sha256) VALUES
+(1,(SELECT id FROM institutions WHERE code='MICROBANK-PL'),'DIGITAL','CS-2026-0912-A','FULL_REPORT','2026-09-01','2026-09-01','2026-12-01',NULL),
+(3,(SELECT id FROM institutions WHERE code='MICROBANK-PL'),'PHYSICAL','CS-2026-0877-B','CREDIT_CHECK','2026-08-20','2026-08-20','2026-11-20','9f2c1d0b7a5e4c3b2a1908f7e6d5c4b3a2918f7e6d5c4b3a2918f7e6d5c4b3a2');
+
+-- A settled facility + prior reporting period (positive history / 24-month view)
+INSERT INTO loans (institution_id, borrower_id, contract_ref, loan_type, principal_xaf, outstanding_xaf, monthly_payment_xaf, interest_rate_pct, start_date, maturity_date, instalments_total, instalments_past_due, days_past_due, cobac_class, provision_xaf, status, reported_at, source) VALUES
+((SELECT id FROM institutions WHERE code='CAMCCUL'), 2,'CAM-2023-0310','MICRO', 600000, 0, 55000, 12.0,'2023-03-01','2024-03-01',12,0,0,'HEALTHY',0,'SETTLED','2024-03-31','BATCH');
+INSERT INTO loan_history (loan_id, reported_at, outstanding_xaf, days_past_due, instalments_past_due, cobac_class, status) VALUES
+(3,'2026-07-31',7150000,64,3,'WATCH','ACTIVE'),
+(5,'2026-07-31',38600000,150,6,'UNCERTAIN','ACTIVE');

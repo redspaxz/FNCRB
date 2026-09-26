@@ -28,7 +28,7 @@
     </tbody>
   </table>
   <div class="chart-caption">Composite score = accuracy 40% + completeness 30% + timeliness 30%.
-    Reconciliation queue: <b><?= (int)$quality['reconciliation_queue'] ?></b> duplicate identit(ies) pending merge.</div>
+    Identity conflicts awaiting bureau review: <b><?= (int)$quality['reconciliation_queue'] ?></b>.</div>
 </div>
 
 <!-- ============ 2. BUREAU OPERATIONS & INQUIRY METRICS ============ -->
@@ -56,7 +56,9 @@
     <div class="chart-box" data-chart="ops-trend"></div></div></div>
 </div>
 
-<!-- ============ 3. REGISTRY & SYSTEM PERFORMANCE ============ -->
+<!-- ============ 3. REGISTRY & SYSTEM PERFORMANCE (national only) ============ -->
+<?php if ($health): ?>
+<?php foreach ($health['warnings'] ?? [] as $w): ?><div class="alert alert-warning py-2 mt-3 mb-0"><?= $e($w) ?></div><?php endforeach; ?>
 <div class="row g-3 mt-1">
   <div class="col-lg-3"><div class="card p-3 h-100 text-center">
     <small class="text-muted">API requests (24h)</small><h2><?= number_format($health['api_requests_24h']) ?></h2>
@@ -79,6 +81,7 @@
     <div class="titled">Audit activity — 14 days (operational heartbeat)</div>
     <div class="chart-box" data-chart="sys-audit"></div></div></div>
 </div>
+<?php endif; ?>
 
 <!-- ============ 4. CONSUMER RIGHTS & DISPUTE MANAGEMENT ============ -->
 <div class="row g-3 mt-1 mb-3">
@@ -99,9 +102,11 @@
     <div class="titled">Disputes by status</div>
     <div class="chart-box" data-chart="dsp-status"></div>
     <a class="btn btn-sm mt-2" href="<?= $base ?>/disputes">Open dispute workflow →</a></div></div>
+  <?php if ($health): ?>
   <div class="col-lg-6"><div class="card p-3 h-100">
     <div class="titled">Registry data inventory (rows)</div>
     <div class="chart-box" data-chart="sys-inventory"></div></div></div>
+  <?php endif; ?>
 </div>
 
 <!-- ============ 5. MACRO-FINANCIAL & CREDIT MARKET (executive, regulator only) ============ -->
@@ -111,7 +116,7 @@
 
   <div class="row g-3">
     <div class="col-lg-3"><div class="card p-3 h-100 text-center <?= ($macro['npl']['national']['npl_ratio_accounts_pct'] ?? 0) > 10 ? 'border-danger' : '' ?>">
-      <small class="text-muted">NPL indicator (<?= (int)($macro['npl']['national']['npl_accounts'] ?? 0) ?>/<?= (int)($macro['npl']['national']['total_accounts'] ?? 0) ?> accounts ≥90 DPD)</small>
+      <small class="text-muted">NPL indicator (<?= (int)($macro['npl']['national']['npl_accounts'] ?? 0) ?>/<?= (int)($macro['npl']['national']['total_accounts'] ?? 0) ?> accounts &gt;90 DPD)</small>
       <h2><?= $e($macro['npl']['national']['npl_ratio_accounts_pct'] ?? '—') ?>%</h2>
       <small class="text-muted">by value: <?= $e($macro['npl']['national']['npl_ratio_value_pct'] ?? '—') ?>%</small></div></div>
     <div class="col-lg-3"><div class="card p-3 h-100 text-center">
@@ -132,7 +137,7 @@
       <div class="titled">New credit facilities per month (all sectors)</div>
       <div class="chart-box" data-chart="macro-growth"></div></div></div>
     <div class="col-lg-6"><div class="card p-3 h-100">
-      <div class="titled">NPL ratio by sector (accounts ≥90 DPD, %)</div>
+      <div class="titled">NPL ratio by sector (accounts &gt;90 DPD, %)</div>
       <div class="chart-box" data-chart="macro-npl-sector"></div></div></div>
     <div class="col-lg-6"><div class="card p-3 h-100">
       <div class="titled">Active accounts per borrower — distribution</div>
@@ -146,9 +151,8 @@
 <?php endif; ?>
 
 <?php
-$q = json_encode($quality); $o = json_encode($ops); $h = json_encode($health); $dsp = json_encode($disputes); $mc = json_encode($macro);
-$pageScripts = <<<HTML
-<script>window.FNCRB_ANALYTICS = {quality: $q, ops: $o, health: $h, disputes: $dsp, macro: $mc};</script>
-<script src="{$base}/assets/js/analytics-charts.js?v=3"></script>
-HTML;
+$json = json_encode(['quality' => $quality, 'ops' => $ops, 'health' => $health, 'disputes' => $disputes, 'macro' => $macro],
+    JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+$pageScripts = '<script type="application/json" id="fncrb-analytics">' . $json . '</script>'
+    . '<script src="' . htmlspecialchars($base, ENT_QUOTES) . '/assets/js/analytics-charts.js?v=4"></script>';
 ?>

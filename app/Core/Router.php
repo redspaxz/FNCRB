@@ -20,9 +20,10 @@ final class Router
         $this->routes[$method]['#^' . $regex . '$#'] = $handler;
     }
 
-    public function dispatch(string $method, string $uri): void
+    /** Request path relative to the application base (e.g. "/loans"). */
+    public static function path(string $uri): string
     {
-        $path = parse_url($uri, PHP_URL_PATH);
+        $path = (string)parse_url($uri, PHP_URL_PATH);
         // strip sub-directory base if the entry script lives in one (e.g. /fncrb/public).
         // only when SCRIPT_NAME actually points at a PHP entry script — the built-in
         // dev server sets it to the full URI for dotted paths (/reports/loans.csv).
@@ -36,8 +37,14 @@ final class Router
         $path = '/' . trim($path, '/');
         if (substr($path, -10) === '/index.php') {
             $path = substr($path, 0, -9); // treat /index.php as directory root
+            $path = '/' . trim($path, '/');
         }
+        return $path;
+    }
 
+    public function dispatch(string $method, string $uri): void
+    {
+        $path = self::path($uri);
         foreach ($this->routes[$method] ?? [] as $regex => $handler) {
             if (preg_match($regex, $path, $m)) {
                 $params = array_filter($m, 'is_string', ARRAY_FILTER_USE_KEY);
@@ -45,6 +52,17 @@ final class Router
                 $ctl = new $class();
                 $ctl->$action($params);
                 return;
+            }
+        }
+        // known path, wrong verb
+        foreach ($this->routes as $verb => $set) {
+            if ($verb === $method) continue;
+            foreach ($set as $regex => $_) {
+                if (preg_match($regex, $path)) {
+                    http_response_code(405);
+                    (new \App\Controllers\PageController())->error(405, 'Method not allowed.');
+                    return;
+                }
             }
         }
         http_response_code(404);

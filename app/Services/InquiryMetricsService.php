@@ -43,7 +43,8 @@ final class InquiryMetricsService
 
         // refusals (no consent) from audit trail
         $refused = $pdo->query(
-            "SELECT COUNT(*) FROM audit_logs WHERE action IN ('INQUIRY_REFUSED')"
+            "SELECT COUNT(*) FROM audit_logs WHERE action = 'INQUIRY_REFUSED'"
+            . ($institutionId ? " AND institution_id = " . (int)$institutionId : '')
         )->fetchColumn();
 
         $total = array_sum($byChannel);

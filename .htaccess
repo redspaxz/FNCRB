@@ -1,5 +1,15 @@
-# FNCRB root — forward all requests into the public front controller
+# FNCRB root — the application's web root is public/. Everything else
+# (app/, config/, database/, scripts/, storage/, tests/, docs) is never served.
+Options -Indexes
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    # block dotfiles and repository internals outright
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+    RewriteRule ^(app|config|database|scripts|storage|tests)(/|$) - [F,L]
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
+
+<FilesMatch "\.(sql|md|log|ini|sh|lock|json|yml|dist|example\.php)$">
+    Require all denied
+</FilesMatch>

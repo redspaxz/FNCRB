@@ -16,18 +16,17 @@ final class MacroAnalyticsService
 {
     public static function kpis(): array
     {
-        $c = require dirname(__DIR__, 2) . '/config/config.php';
-        $cfg = $c['macro'];
+        $cfg = \App\Core\Config::get('macro');
         $dpd = (int)$cfg['npl_dpd_threshold'];
         $pdo = Database::pdo();
 
         // ---------- 1. NPL indicator (national + by sector) ----------
-        $npl = ['national' => self::nplRow("l.status='ACTIVE'", $dpd)];
+        $npl = ['national' => self::nplRow("l.status IN " . ClassificationService::OPEN_SQL, $dpd)];
         $rows = $pdo->query(
-            "SELECT l.loan_type FROM loans l WHERE l.status='ACTIVE' GROUP BY l.loan_type"
+            "SELECT l.loan_type FROM loans l WHERE l.status IN " . ClassificationService::OPEN_SQL . " GROUP BY l.loan_type"
         )->fetchAll(PDO::FETCH_COLUMN);
         foreach ($rows as $sector) {
-            $npl['by_sector'][$sector] = self::nplRow("l.status='ACTIVE' AND l.loan_type = " . $pdo->quote($sector), $dpd);
+            $npl['by_sector'][$sector] = self::nplRow("l.status IN " . ClassificationService::OPEN_SQL . " AND l.loan_type = " . $pdo->quote($sector), $dpd);
         }
 
         // ---------- 2. Credit coverage ratio ----------
@@ -78,7 +77,7 @@ final class MacroAnalyticsService
             "SELECT t.borrower_id, t.loans, t.outstanding, t.institutions FROM (
                 SELECT l.borrower_id, COUNT(*) loans, SUM(l.outstanding_xaf) outstanding,
                        COUNT(DISTINCT l.institution_id) institutions
-                FROM loans l WHERE l.status='ACTIVE' GROUP BY l.borrower_id
+                FROM loans l WHERE l.status IN " . ClassificationService::OPEN_SQL . " GROUP BY l.borrower_id
              ) t"
         )->fetchAll();
         $nBorrowers = count($rows);
@@ -130,9 +129,9 @@ final class MacroAnalyticsService
         $pdo = Database::pdo();
         $row = $pdo->query(
             "SELECT COUNT(*) total,
-                    SUM(CASE WHEN days_past_due >= $dpd THEN 1 ELSE 0 END) npl_accounts,
+                    SUM(CASE WHEN days_past_due > $dpd THEN 1 ELSE 0 END) npl_accounts,
                     COALESCE(SUM(outstanding_xaf),0) out_total,
-                    COALESCE(SUM(CASE WHEN days_past_due >= $dpd THEN outstanding_xaf ELSE 0 END),0) out_npl
+                    COALESCE(SUM(CASE WHEN days_past_due > $dpd THEN outstanding_xaf ELSE 0 END),0) out_npl
              FROM loans l WHERE $where"
         )->fetch();
         return [

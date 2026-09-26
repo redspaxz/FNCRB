@@ -23,14 +23,14 @@
       try {
         var res = await fetch(base + '/compliance/reclassify', {
           method: 'POST',
-          headers: { 'X-CSRF-Token': csrf }
+          headers: { 'X-CSRF-Token': csrf, 'Accept': 'application/json' }
         });
         var data = await res.json();
         if (res.ok) {
           alert('Reclassified ' + data.loans_reclassified + ' loan(s). COBAC classes and provisions updated.');
           location.reload();
         } else {
-          alert('Error: ' + (data.error || res.status));
+          alert('Error: ' + (data.error && data.error.message ? data.error.message : (data.error || res.status)));
         }
       } catch (e) { alert('Request failed: ' + e); }
       b.disabled = false;
@@ -44,6 +44,19 @@
     terms.addEventListener('change', sync);
     sync();
   }
+  // declarative actions (replace inline onclick handlers — CSP forbids inline script)
+  document.querySelectorAll('[data-action="print"]').forEach(function (b) {
+    b.addEventListener('click', function () { window.print(); });
+  });
+  document.querySelectorAll('[data-action="close"]').forEach(function (b) {
+    b.addEventListener('click', function () { window.close(); });
+  });
+  // confirmation before sensitive form submissions
+  document.querySelectorAll('form[data-confirm]').forEach(function (f) {
+    f.addEventListener('submit', function (ev) {
+      if (!confirm(f.getAttribute('data-confirm'))) ev.preventDefault();
+    });
+  });
   // pagination: auto-submit the rows-per-page selector
   document.querySelectorAll('.pager-select').forEach(function (sel) {
     sel.addEventListener('change', function () {

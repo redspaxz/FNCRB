@@ -6,21 +6,28 @@ declare(strict_types=1);
 
 require dirname(__DIR__) . '/app/bootstrap.php';
 
-\App\Core\Auth::start();
-\App\Core\Lang::init();
-
-// Security headers (OWASP secure headers)
+// Security headers (OWASP secure headers). All scripts are external files, so
+// inline script execution is refused; inline style attributes remain allowed.
 header('X-Frame-Options: DENY');
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: no-referrer');
 header('X-XSS-Protection: 0');
-header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data:; frame-ancestors 'none'");
-if (($_SERVER['HTTPS'] ?? '') !== '') header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+header('Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()');
+header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'");
+if (($_SERVER['HTTPS'] ?? '') !== '' && $_SERVER['HTTPS'] !== 'off') {
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
+
+$path = \App\Core\Router::path($_SERVER['REQUEST_URI'] ?? '/');
+
+// Machine API is stateless (ApiGuard); only browser routes get a session.
+if (!str_starts_with($path, '/api/v1/') || $path === '/api/v1/supervisory-package') {
+    \App\Core\Auth::start();
+    \App\Core\Lang::init();
+    \App\Core\Auth::enforce($path);
+}
 
 $router = new \App\Core\Router();
 require dirname(__DIR__) . '/app/routes.php';
 
-// API-key resolution for machine channels (must run before dispatch of /api routes)
-\App\Core\ApiAuth::institution();
-
-$router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+$router->dispatch($_SERVER['REQUEST_METHOD'] ?? 'GET', $_SERVER['REQUEST_URI'] ?? '/');

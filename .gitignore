@@ -1,4 +1,11 @@
 config/config.local.php
 storage/reports/*
 !storage/reports/.gitkeep
+storage/consents/*
+!storage/consents/.gitkeep
 .tmp_patch.php
+# curl cookie jars / local test artefacts
+*.cookies
+cookies*.txt
+o.txt
+r.txt

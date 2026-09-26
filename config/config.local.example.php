@@ -3,8 +3,11 @@
 // config.local.php is git-ignored, so deploys never overwrite it.
 return [
     'app' => [
-        'env'   => 'production',
-        'secret'=> 'GENERATE-32+-RANDOM-CHARS',
+        'env'      => 'production',
+        // 32+ random characters, e.g. php -r "echo bin2hex(random_bytes(24));"
+        // Encrypts 2FA seeds at rest: changing it later invalidates existing 2FA enrolments.
+        'secret'   => 'GENERATE-32+-RANDOM-CHARS',
+        'timezone' => 'Africa/Douala',
     ],
     'db' => [
         'host' => 'localhost',

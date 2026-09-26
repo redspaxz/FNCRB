@@ -3,32 +3,38 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Database;
 use App\Core\Rbac;
 use App\Core\View;
 use App\Services\AnalyticsService;
+use App\Services\ClassificationService as CS;
 
 final class DashboardController
 {
     public function index(): void
     {
-        if (!\App\Core\Auth::check()) {
+        if (!Auth::check()) {
             header('Location: ' . Rbac::baseUrl() . '/login');
             return;
         }
 
-        $pdo = Database::pdo();
-        $instId = \App\Core\Auth::institutionId();
+        $instId = Auth::institutionId();
         $isRegulator = $instId === null;
+        $scope = $isRegulator ? '' : ' AND institution_id = ' . (int)$instId;
+        $open = CS::OPEN_SQL;
+        $npl = CS::NPL_SQL;
 
-        $stats = $pdo->query(
+        $stats = Database::pdo()->query(
             "SELECT
-                (SELECT COUNT(*) FROM institutions WHERE category != 'REGULATOR') AS institutions,
-                (SELECT COUNT(*) FROM borrowers WHERE dup_of_id IS NULL) AS borrowers,
-                (SELECT COUNT(*) FROM loans WHERE status='ACTIVE'" . (!$isRegulator ? " AND institution_id=" . (int)$instId : "") . ") AS active_loans,
-                (SELECT COALESCE(SUM(outstanding_xaf),0) FROM loans WHERE status='ACTIVE'" . (!$isRegulator ? " AND institution_id=" . (int)$instId : "") . ") AS outstanding,
-                (SELECT COUNT(*) FROM loans WHERE cobac_class IN ('DOUBTFUL','COMPROMISED')" . (!$isRegulator ? " AND institution_id=" . (int)$instId : "") . ") AS npl_loans,
-                (SELECT COUNT(*) FROM payment_incidents WHERE resolved=0" . (!$isRegulator ? " AND institution_id=" . (int)$instId : "") . ") AS open_incidents"
+                (SELECT COUNT(*) FROM institutions WHERE category != 'REGULATOR' AND status = 'ACTIVE') AS institutions,
+                " . ($isRegulator
+                    ? "(SELECT COUNT(*) FROM borrowers WHERE dup_of_id IS NULL)"
+                    : "(SELECT COUNT(DISTINCT borrower_id) FROM loans WHERE status IN $open $scope)") . " AS borrowers,
+                (SELECT COUNT(*) FROM loans WHERE status IN $open $scope) AS active_loans,
+                (SELECT COALESCE(SUM(outstanding_xaf),0) FROM loans WHERE status IN $open $scope) AS outstanding,
+                (SELECT COUNT(*) FROM loans WHERE status IN $open AND cobac_class IN $npl $scope) AS npl_loans,
+                (SELECT COUNT(*) FROM payment_incidents WHERE resolved = 0 $scope) AS open_incidents"
         )->fetch();
 
         View::render('dashboard/index', [
@@ -40,9 +46,9 @@ final class DashboardController
     /** KPI feed for dashboard charts (JSON). */
     public function analytics(): void
     {
-        if (!\App\Core\Auth::check()) {
+        if (!Auth::check()) {
             \App\Core\Response::json(["error" => ["code" => "AUTH_REQUIRED", "message" => "Session required."]], 401);
         }
-        \App\Core\Response::json(AnalyticsService::kpis(\App\Core\Auth::institutionId()));
+        \App\Core\Response::json(AnalyticsService::kpis(Auth::institutionId()));
     }
 }

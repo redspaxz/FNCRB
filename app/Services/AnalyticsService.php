@@ -21,7 +21,7 @@ final class AnalyticsService
         // Portfolio by COBAC asset class
         $rows = $pdo->query(
             "SELECT l.cobac_class AS k, COUNT(*) AS n, SUM(l.outstanding_xaf) AS amt
-             FROM loans l WHERE l.status='ACTIVE' $scope
+             FROM loans l WHERE l.status IN " . ClassificationService::OPEN_SQL . " $scope
              GROUP BY l.cobac_class"
         )->fetchAll();
         $byClass = ['HEALTHY'=>0,'WATCH'=>0,'UNCERTAIN'=>0,'DOUBTFUL'=>0,'COMPROMISED'=>0];
@@ -32,7 +32,7 @@ final class AnalyticsService
         $rows = $pdo->query(
             "SELECT i.code AS k, SUM(l.outstanding_xaf) AS amt
              FROM loans l JOIN institutions i ON i.id = l.institution_id
-             WHERE l.status='ACTIVE' AND i.category != 'REGULATOR' $scope
+             WHERE l.status IN " . ClassificationService::OPEN_SQL . " AND i.category != 'REGULATOR' $scope
              GROUP BY i.code ORDER BY amt DESC LIMIT 8"
         )->fetchAll();
         $byInstitution = array_column($rows, 'amt', 'k');
@@ -40,7 +40,7 @@ final class AnalyticsService
         // Payment incidents by type
         $rows = $pdo->query(
             "SELECT pi.incident_type AS k, COUNT(*) AS n
-             FROM payment_incidents pi WHERE 1=1 $scopeI
+             FROM payment_incidents pi WHERE pi.resolved = 0 $scopeI
              GROUP BY pi.incident_type"
         )->fetchAll();
         $incidentsByType = array_column($rows, 'n', 'k');
@@ -61,7 +61,7 @@ final class AnalyticsService
                          WHEN l.days_past_due<=90 THEN '31-90'
                          WHEN l.days_past_due<=180 THEN '91-180'
                          ELSE '180+' END AS k, COUNT(*) AS n
-             FROM loans l WHERE l.status='ACTIVE' $scope GROUP BY k"
+             FROM loans l WHERE l.status IN " . ClassificationService::OPEN_SQL . " $scope GROUP BY k"
         )->fetchAll();
         $arrears = array_column($rows, 'n', 'k');
         $arrears = array_merge(

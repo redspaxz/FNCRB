@@ -1,6 +1,7 @@
 -- =====================================================================
 -- FNCRB upgrade v3 — data quality, bureau ops, disputes
 -- Apply:  mysql -u root fncrb < database/upgrade_v3.sql
+-- (schema.sql already includes these for fresh installs — existing installations only.)
 -- =====================================================================
 USE fncrb;
 

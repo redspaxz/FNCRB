@@ -28,7 +28,7 @@ $clauses = [
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title><?= $t('terms_title') ?> — FNCRB</title>
 <link href="<?= $base ?>/assets/vendor/bootstrap.min.css?v=4" rel="stylesheet">
-<link href="<?= $base ?>/assets/css/lumo.css?v=8" rel="stylesheet">
+<link href="<?= $base ?>/assets/css/lumo.css?v=9" rel="stylesheet">
 </head>
 <body>
 <div class="hero" style="max-width:760px;">
@@ -44,8 +44,9 @@ $clauses = [
 
   <div class="mt-4 d-flex gap-2">
     <a class="btn btn-primary" href="<?= $base ?>/login"><?= $t('back_login') ?></a>
-    <button class="btn" onclick="window.close()"><?= $t('close_window') ?></button>
+    <button class="btn" data-action="close"><?= $t('close_window') ?></button>
   </div>
 </div>
+<script src="<?= $base ?>/assets/js/app.js?v=4"></script>
 </body>
 </html>

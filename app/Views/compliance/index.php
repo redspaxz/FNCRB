@@ -2,7 +2,7 @@
 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
   <h3>Compliance & Reporting</h3>
   <div class="d-flex gap-2">
-    <button id="btn-reclassify" class="btn btn-outline-primary btn-sm">Run classification &amp; provisioning</button>
+    <?php if (!empty($canProvision)): ?><button id="btn-reclassify" class="btn btn-outline-primary btn-sm">Run classification &amp; provisioning</button><?php endif; ?>
     <a class="btn btn-outline-secondary btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/compliance/supervisory-package" target="_blank">Supervisory package (JSON)</a>
     <a class="btn btn-outline-secondary btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/reports/supervisory.xlsx">Supervisory XLSX</a>
     <a class="btn btn-outline-secondary btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/compliance/concentration" target="_blank">Concentration ratios (JSON)</a>
@@ -10,6 +10,7 @@
 </div>
 
 <h5 class="mt-4">Portfolio quality — COBAC asset classification</h5>
+<p class="page-sub">Open credit (active and restructured). NPL = open credit more than 90 days past due (Uncertain, Doubtful, Compromised).</p>
 <div class="table-responsive">
 <table class="table table-bordered table-sm bg-white">
   <thead>
@@ -22,7 +23,7 @@
     <tr>
       <?php if ($first): ?>
       <td rowspan="<?= $rowspan ?>"><b><?= $e($code) ?></b> — <?= $e($p['name']) ?><br>
-        <small class="text-muted">NPL ratio: <?= $e((string)$p['npl_ratio_pct']) ?>% · Provisions: <?= number_format($p['provisions_total']) ?></small></td>
+        <small class="text-muted">NPL ratio (&gt;90 DPD): <?= $e((string)$p['npl_ratio_pct']) ?>% · Provisions: <?= number_format($p['provisions_total']) ?></small></td>
       <?php endif; $first = false; ?>
       <?php if ($v): ?>
       <td class="cls-<?= $e((string)$cls) ?>"><?= $e((string)$cls) ?></td>
@@ -41,12 +42,12 @@
 
 <h5 class="mt-4">Payment incidents summary (CIP)</h5>
 <table class="table table-sm table-striped bg-white">
-  <thead><tr><th>Institution</th><th>Incident type</th><th>Count</th><th>Amount (XAF)</th></tr></thead>
+  <thead><tr><th>Institution</th><th>Incident type</th><th>Count</th><th>Open</th><th>Amount (XAF)</th></tr></thead>
   <tbody>
   <?php foreach ($cip as $r): ?>
     <tr><td><?= $e($r['code']) ?> — <?= $e($r['name']) ?></td><td><?= $e($r['incident_type']) ?></td>
-        <td><?= (int)$r['cnt'] ?></td><td><?= number_format((int)$r['amt']) ?></td></tr>
-  <?php endforeach; if (!$cip): ?><tr><td colspan="4" class="text-muted">No incidents.</td></tr><?php endif; ?>
+        <td><?= (int)$r['cnt'] ?></td><td><?= (int)$r['open_cnt'] ?></td><td><?= number_format((int)$r['amt']) ?></td></tr>
+  <?php endforeach; if (!$cip): ?><tr><td colspan="5" class="text-muted">No incidents.</td></tr><?php endif; ?>
   </tbody>
 </table>
 

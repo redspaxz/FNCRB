@@ -5,7 +5,8 @@ namespace App\Core;
 
 /**
  * RFC 6238 TOTP (30s window, SHA-1, 6 digits) — pure PHP, no dependencies.
- * Secrets are stored base32-encoded in users.totp_secret.
+ * Secrets are stored encrypted (Crypto) in users.totp_secret; the last accepted
+ * time step is kept in users.totp_last_step so a code cannot be replayed.
  */
 final class Totp
 {
@@ -20,21 +21,36 @@ final class Totp
 
     public static function code(string $base32Secret, ?int $time = null): string
     {
-        $key = self::base32Decode($base32Secret);
-        if ($key === false || strlen($key) < 10) return '';
-        $slice = intdiv($time ?? time(), 30);
-        return self::hotp($key, $slice);
+        return self::codeForStep($base32Secret, intdiv($time ?? time(), 30));
     }
 
-    /** Verify with +/- 1 window tolerance; rate-limit-safe constant-time compare. */
+    private static function codeForStep(string $base32Secret, int $step): string
+    {
+        $key = self::base32Decode($base32Secret);
+        if ($key === false || strlen($key) < 10) return '';
+        return self::hotp($key, $step);
+    }
+
+    /**
+     * Verify with ±1 step tolerance. Returns the matched time step, or null.
+     * Steps at or below $lastStep are refused (replay protection).
+     */
+    public static function verifyStep(string $base32Secret, string $code, ?int $lastStep = null, ?int $now = null): ?int
+    {
+        if (!preg_match('/^\d{6}$/', $code)) return null;
+        $cur = intdiv($now ?? time(), 30);
+        foreach ([0, -1, 1] as $drift) {
+            $step = $cur + $drift;
+            if ($lastStep !== null && $step <= $lastStep) continue;
+            $expected = self::codeForStep($base32Secret, $step);
+            if ($expected !== '' && hash_equals($expected, $code)) return $step;
+        }
+        return null;
+    }
+
     public static function verify(string $base32Secret, string $code): bool
     {
-        if (!preg_match('/^\d{6}$/', $code)) return false;
-        foreach ([0, -1, 1] as $drift) {
-            $expected = self::code($base32Secret, time() + $drift * 30);
-            if ($expected !== '' && hash_equals($expected, $code)) return true;
-        }
-        return false;
+        return self::verifyStep($base32Secret, $code) !== null;
     }
 
     /** otpauth:// URI for authenticator app enrollment (QR via any external generator). */

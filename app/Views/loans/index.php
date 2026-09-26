@@ -1,4 +1,4 @@
-<?php $e = $data['e']; ?>
+<?php $e = $data['e']; $base = App\Core\Rbac::baseUrl(); ?>
 <h3>Loan Portfolio</h3>
 <?php if (!empty($filters) && array_filter($filters)): ?>
 <div class="alert alert-info py-2 d-flex align-items-center gap-2">
@@ -6,11 +6,19 @@
   <?php foreach (array_filter($filters) as $k => $v): ?>
     <span class="badge bg-secondary"><?= $e(ucfirst($k)) ?> = <?= $e((string)$v) ?></span>
   <?php endforeach; ?>
-  <a class="btn btn-sm ms-auto" href="<?= App\Core\Rbac::baseUrl() ?>/loans">Clear</a>
+  <a class="btn btn-sm ms-auto" href="<?= $e($base) ?>/loans">Clear</a>
 </div>
 <?php endif; ?>
 <?php if ($isRegulator): ?><div class="alert alert-info py-2">National view — all reporting institutions.</div><?php endif; ?>
-<div class="mb-2 d-flex gap-2"><a class="btn btn-primary btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/loans/create">Submit loan record</a><a class="btn btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/reports/loans.csv">Export CSV</a><a class="btn btn-sm" href="<?= App\Core\Rbac::baseUrl() ?>/reports/loans.xlsx">Export XLSX</a></div>
+<div class="mb-2 d-flex gap-2 flex-wrap align-items-center">
+  <?php if ($canReport): ?><a class="btn btn-primary btn-sm" href="<?= $e($base) ?>/loans/create">Submit / update loan record</a><?php endif; ?>
+  <a class="btn btn-sm" href="<?= $e($base) ?>/reports/loans.csv">Export CSV</a>
+  <a class="btn btn-sm" href="<?= $e($base) ?>/reports/loans.xlsx">Export XLSX</a>
+  <span class="ms-auto small">Status:
+    <?php foreach (['' => 'All', 'ACTIVE' => 'Active', 'RESTRUCTURED' => 'Restructured', 'SETTLED' => 'Settled', 'WRITTEN_OFF' => 'Written off'] as $k => $label): ?>
+      <a href="<?= $e($base) ?>/loans<?= $k ? '?status=' . $k : '' ?>"<?= ($filters['status'] ?? '') === $k ? ' class="fw-bold"' : '' ?>><?= $label ?></a>
+    <?php endforeach; ?></span>
+</div>
 <table class="table table-striped table-sm bg-white">
   <thead><tr><th>Institution</th><th>Borrower</th><th>Contract</th><th>Type</th><th>Outstanding (XAF)</th><th>Monthly</th><th>DPD</th><th>COBAC class</th><th>Provision</th><th>Status</th><th>Reported</th></tr></thead>
   <tbody>
@@ -32,4 +40,3 @@
   </tbody>
 </table>
 <?= $pager ?? '' ?>
-

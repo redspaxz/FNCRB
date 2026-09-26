@@ -8,6 +8,8 @@ use PDO;
 /**
  * Role-Based Access Control. Granular by role, institution scope and officer level.
  * Permission model: role -> permissions; institution scoping enforced in queries.
+ * Permissions are reloaded on every request by Auth::enforce(), so role changes
+ * take effect immediately. Machine clients authenticate through ApiGuard.
  */
 final class Rbac
 {
@@ -27,6 +29,7 @@ final class Rbac
 
     public static function can(string $perm): bool
     {
+        if (!Auth::check()) return false;
         if (self::$userPerms === null) {
             self::$userPerms = $_SESSION['_perms'] ?? [];
         }
@@ -36,75 +39,35 @@ final class Rbac
     /** Web guard: redirect to login/denied. */
     public static function require(string $perm): void
     {
+        self::requireAny([$perm]);
+    }
+
+    /** Web guard satisfied by any one of the listed permissions. */
+    public static function requireAny(array $perms): void
+    {
         if (!Auth::check()) {
+            $accept = (string)($_SERVER['HTTP_ACCEPT'] ?? '');
+            if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET' || str_contains($accept, 'application/json')) {
+                Response::json(['error' => ['code' => 'AUTH_REQUIRED', 'message' => 'Session required.']], 401);
+            }
             header('Location: ' . self::baseUrl() . '/login');
             exit;
         }
-        if (!self::can($perm)) {
-            Audit::log('ACCESS_DENIED', null, ['permission' => $perm]);
-            http_response_code(403);
-            (new \App\Controllers\PageController())->forbidden();
-            exit;
+        foreach ($perms as $p) {
+            if (self::can($p)) return;
         }
-    }
-
-    /** API guard: accepts session user OR institution API key; emits 401/403 JSON. */
-    public static function requireApi(string $perm): void
-    {
-        if (ApiAuth::institution() !== null) {
-            if (!ApiAuth::can($perm)) {
-                Response::json(['error' => 'Forbidden — permission denied: ' . $perm], 403);
-            }
-            return;
+        Audit::log('ACCESS_DENIED', null, ['permission' => implode('|', $perms), 'uri' => $_SERVER['REQUEST_URI'] ?? '']);
+        http_response_code(403);
+        if (str_contains((string)($_SERVER['CONTENT_TYPE'] ?? ''), 'application/json')) {
+            Response::json(['error' => ['code' => 'FORBIDDEN', 'message' => 'Permission denied.']], 403);
         }
-        if (!Auth::check()) {
-            Response::json(['error' => 'Unauthenticated'], 401);
-        }
-        if (!self::can($perm)) {
-            Response::json(['error' => 'Forbidden — missing permission: ' . $perm], 403);
-        }
+        (new \App\Controllers\PageController())->forbidden();
+        exit;
     }
 
     /** Base URL auto-detected from the front controller's location. */
     public static function baseUrl(): string
     {
         return rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
-    }
-}
-
-/**
- * API-key authentication for machine-to-machine ingestion/inquiry (Category 2 real-time).
- * Expects header: X-FNCRB-Key
- */
-final class ApiAuth
-{
-    public static ?array $institution = null;
-
-    public static function check(): bool
-    {
-        return self::institution() !== null;
-    }
-
-    public static function institution(): ?array
-    {
-        if (self::$institution !== null) return self::$institution;
-        $key = $_SERVER['HTTP_X_FNCRB_KEY'] ?? '';
-        if ($key === '') return null;
-        $stmt = Database::pdo()->prepare(
-            "SELECT * FROM institutions
-             WHERE api_key_hash = ? AND status = 'ACTIVE'"
-        );
-        $stmt->execute([hash('sha256', $key)]);
-        $inst = $stmt->fetch();
-        if ($inst) {
-            self::$institution = $inst;
-        }
-        return $inst;
-    }
-
-    public static function can(string $perm): bool
-    {
-        return self::institution() !== null
-            && in_array($perm, ['loan.report', 'inquiry.perform', 'incident.report'], true);
     }
 }

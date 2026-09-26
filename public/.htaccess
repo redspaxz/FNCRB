@@ -7,7 +7,10 @@
 </IfModule>
 
 # Deny access to sensitive files
-<FilesMatch "\.(sql|md|log|ini)$">
+<FilesMatch "\.(sql|md|log|ini|sh|txt)$">
+    Require all denied
+</FilesMatch>
+<FilesMatch "^dev_router\.php$">
     Require all denied
 </FilesMatch>
 Options -Indexes

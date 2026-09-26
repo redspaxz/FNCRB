@@ -52,7 +52,7 @@
       { label: '1-30d', value: arr['1-30'] || 0, color: '#37a3f5', href: L('/loans?dpd=1-30') },
       { label: '31-90d', value: arr['31-90'] || 0, color: '#e0a63a', href: L('/loans?dpd=31-90') },
       { label: '91-180d', value: arr['91-180'] || 0, color: '#e04f44', href: L('/loans?dpd=91-180') },
-      { label: '180+d', value: arr['180+'] || 0, color: '#8b0000', href: L('/loans?dpd=180+') }
+      { label: '180+d', value: arr['180+'] || 0, color: '#8b0000', href: L('/loans?dpd=' + encodeURIComponent('180+')) }
     ], {
       captionHtml: inArr + ' loan(s) in arrears — ' + C.pct(inArr, arrTotal) + ' of the active portfolio. Click a bucket to see the loans.'
     });

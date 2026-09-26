@@ -7,7 +7,7 @@ declare(strict_types=1);
  *
  * Usage: php scripts/generate_monthly_reports.php
  */
-require dirname(__DIR__) . '/app/bootstrap.php';
+require __DIR__ . '/_cli.php';
 
 $dir = dirname(__DIR__) . '/storage/reports';
 if (!is_dir($dir)) mkdir($dir, 0770, true);

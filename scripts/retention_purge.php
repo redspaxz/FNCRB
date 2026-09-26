@@ -2,38 +2,55 @@
 declare(strict_types=1);
 /**
  * CLI: data-retention housekeeping (Law 2010/012 / privacy hygiene).
- * - expire consents past retention (kept as rows, marked expired — they already
- *   self-expire via expires_at; here we hard-delete those long past)
- * - purge stale login_attempts
- * - prune score snapshots older than the configured horizon
- * - NEVER touches audit_logs (tamper-proof chain must remain complete)
+ * Horizons come from config.php → 'retention'.
+ * - consents: deleted once expired/revoked beyond the horizon AND no inquiry
+ *   relies on them (a consent backing a logged inquiry is the lawful-basis
+ *   evidence for that inquiry and is kept with it)
+ * - stale login_attempts, API nonces, old score snapshots, old loan history
+ * - NEVER touches audit_logs (tamper-evident chain must remain complete)
  *
  * Usage: php scripts/retention_purge.php        (schedule monthly via cron)
  */
-require dirname(__DIR__) . '/app/bootstrap.php';
+require __DIR__ . '/_cli.php';
 
-$c = require dirname(__DIR__) . '/config/config.php';
-$months = (int)($c['security']['consent_ttl_days'] ?? 90) >= 0 ? 24 : 24; // horizon in months
+$r = App\Core\Config::get('retention');
+$m = fn(string $k, int $d) => max(1, (int)($r[$k] ?? $d));
 
 $pdo = \App\Core\Database::pdo();
 $stats = [];
 
 $pdo->beginTransaction();
 try {
-    $n = $pdo->exec("DELETE FROM consents WHERE expires_at < (NOW() - INTERVAL 12 MONTH)");
-    $stats['consents_deleted'] = $n;
-
-    $n = $pdo->exec("DELETE FROM login_attempts WHERE created_at < (NOW() - INTERVAL 6 MONTH)");
-    $stats['login_attempts_deleted'] = $n;
-
-    $n = $pdo->exec("DELETE FROM score_snapshots WHERE computed_at < (NOW() - INTERVAL {$months} MONTH)");
-    $stats['score_snapshots_deleted'] = $n;
-
+    $stats['consents_deleted'] = $pdo->exec(
+        "DELETE c FROM consents c
+         LEFT JOIN inquiry_logs q ON q.consent_id = c.id
+         WHERE q.id IS NULL
+           AND COALESCE(c.revoked_at, c.expires_at) < (NOW() - INTERVAL {$m('consent_months', 12)} MONTH)"
+    );
+    $stats['login_attempts_deleted'] = $pdo->exec(
+        "DELETE FROM login_attempts WHERE created_at < (NOW() - INTERVAL {$m('login_attempt_months', 6)} MONTH)"
+    );
+    $stats['api_nonces_deleted'] = $pdo->exec("DELETE FROM api_nonces WHERE created_at < (NOW() - INTERVAL 1 DAY)");
+    $stats['score_snapshots_deleted'] = $pdo->exec(
+        "DELETE FROM score_snapshots WHERE computed_at < (NOW() - INTERVAL {$m('score_snapshot_months', 24)} MONTH)"
+    );
+    $stats['loan_history_deleted'] = $pdo->exec(
+        "DELETE FROM loan_history WHERE reported_at < (CURDATE() - INTERVAL {$m('loan_history_months', 60)} MONTH)"
+    );
     $pdo->commit();
 } catch (Throwable $e) {
     $pdo->rollBack();
     fwrite(STDERR, "Purge failed: {$e->getMessage()}\n");
     exit(1);
+}
+
+// orphaned consent evidence files
+$dir = dirname(__DIR__) . '/storage/consents';
+$kept = $pdo->query("SELECT evidence_path FROM consents WHERE evidence_path IS NOT NULL")->fetchAll(PDO::FETCH_COLUMN);
+$kept = array_flip(array_map('basename', $kept));
+$stats['evidence_files_deleted'] = 0;
+foreach (glob($dir . '/*.{pdf,jpg,png}', GLOB_BRACE) ?: [] as $f) {
+    if (!isset($kept[basename($f)]) && filemtime($f) < time() - 86400 && unlink($f)) $stats['evidence_files_deleted']++;
 }
 
 \App\Core\Audit::log('RETENTION_PURGE', null, $stats);

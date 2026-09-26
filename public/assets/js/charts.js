@@ -30,6 +30,11 @@
     node.setAttribute('role', 'link');
     node.addEventListener('keydown', function (e) { if (e.key === 'Enter') window.location.href = href; });
   }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
   function caption(c, html) {
     var d = document.createElement('div'); d.className = 'chart-caption'; d.innerHTML = html; c.appendChild(d);
   }
@@ -100,8 +105,8 @@
       var item = document.createElement('span');
       item.className = 'chart-legend-item';
       clickable(item, d.href);
-      item.innerHTML = '<i style="background:' + (d.color || COLORS[i % COLORS.length]) + '"></i>'
-        + d.label + ' <b>' + (opts.legendValue ? opts.legendValue(d) : fmt(d.value)) + '</b>'
+      item.innerHTML = '<i style="background:' + esc(d.color || COLORS[i % COLORS.length]) + '"></i>'
+        + esc(d.label) + ' <b>' + esc(opts.legendValue ? opts.legendValue(d) : fmt(d.value)) + '</b>'
         + ' <em>' + pct(d.value, total) + '</em>';
       legend.appendChild(item);
     });
@@ -162,7 +167,7 @@
       fill.className = 'chart-hbar-fill';
       fill.style.width = (d.value / max * 100) + '%';
       fill.style.background = d.color || opts.color || COLORS[i % COLORS.length];
-      row.innerHTML = '<span class="chart-hbar-label" title="' + d.label + '">' + d.label + '</span>'
+      row.innerHTML = '<span class="chart-hbar-label" title="' + esc(d.label) + '">' + esc(d.label) + '</span>'
         + '<span class="chart-hbar-track"></span>'
         + '<span class="chart-hbar-value">' + (opts.raw ? fmtFull(d.value) : fmt(d.value))
         + '</span><span class="chart-hbar-pct">' + pct(d.value, total) + '</span>';

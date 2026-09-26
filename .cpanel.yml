@@ -1,5 +1,8 @@
 ---
+# Deploys the repository to the hosting account. "./" (not "*") so dotfiles —
+# in particular the root .htaccess that confines the web root to public/ —
+# are deployed. Operator artefacts and local config never ship.
 deployment:
   tasks:
     - export DEPLOYPATH=/home/ttecwymc/public_html/fncrb
-    - /bin/rsync -r --exclude='.git' * $DEPLOYPATH
+    - /bin/rsync -r --exclude='.git' --exclude='.github' --exclude='config/config.local.php' --exclude='storage/reports/*.xlsx' --exclude='storage/consents/*' --exclude='*.txt' --exclude='tests/' ./ $DEPLOYPATH/

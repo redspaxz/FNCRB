@@ -14,8 +14,7 @@ final class ConcentrationService
     /** Single-borrower limit as % of net equity — configurable in config.php. */
     private static function limitPct(): float
     {
-        $c = require dirname(__DIR__, 2) . '/config/config.php';
-        return (float)($c['security']['single_borrower_limit_pct'] ?? 25.0);
+        return (float)\App\Core\Config::get('security.single_borrower_limit_pct', 25.0);
     }
 
     public static function report(?int $institutionId = null): array
@@ -26,7 +25,7 @@ final class ConcentrationService
                 FROM loans l
                 JOIN institutions i ON i.id = l.institution_id
                 JOIN borrowers b ON b.id = l.borrower_id
-                WHERE l.status = 'ACTIVE'
+                WHERE l.status IN " . ClassificationService::OPEN_SQL . "
                   AND i.category != 'REGULATOR'";
         $params = [];
         if ($institutionId) { $sql .= " AND i.id = ?"; $params[] = $institutionId; }
@@ -61,6 +60,7 @@ final class ConcentrationService
         foreach ($byInst as &$inst) {
             $inst['top_exposures'] = array_slice($inst['top_exposures'], 0, 10);
         }
-        return $byInst;
+        unset($inst);
+        return ['limit_pct' => self::limitPct(), 'institutions' => $byInst];
     }
 }
